@@ -1,10 +1,11 @@
-import type {
-  DocumentReference,
-  Firestore,
+import {
+  getFirestore,
   Timestamp,
-  Transaction,
+  type DocumentReference,
+  type Firestore,
+  type Transaction,
 } from 'firebase-admin/firestore';
-import { HttpsError, type FunctionsErrorCode } from 'firebase-functions/v2/https';
+import { HttpsError, type CallableRequest, type FunctionsErrorCode } from 'firebase-functions/v2/https';
 import type { ErrorReason } from '../shared/errors';
 import type { GroupDoc, Person } from '../shared/types';
 
@@ -43,4 +44,18 @@ export function requireMember(group: LoadedGroup, uid: string): void {
 
 export function requireAdmin(group: LoadedGroup, uid: string): void {
   if (group.data.adminUid !== uid) fail('not-admin', 'permission-denied');
+}
+
+export function ctxFromRequest(req: CallableRequest<unknown>): Ctx {
+  return {
+    db: getFirestore(),
+    uid: req.auth?.uid ?? null,
+    person: req.auth
+      ? {
+          name: (req.auth.token.name as string | undefined) ?? '?',
+          photoURL: (req.auth.token.picture as string | undefined) ?? null,
+        }
+      : null,
+    now: () => Timestamp.now(),
+  };
 }

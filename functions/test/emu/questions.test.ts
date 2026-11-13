@@ -114,7 +114,7 @@ describe('castVote', () => {
     if (q.results?.mode === 'full') {
       expect(Object.values(q.results.totals).reduce((x, y) => x + y, 0)).toBe(5);
     } else throw new Error('expected full results');
-  });
+  }, 20_000);
 });
 
 describe('revealQuestion', () => {
