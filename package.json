@@ -1,0 +1,11 @@
+{
+  "name": "meen-fina",
+  "private": true,
+  "workspaces": ["functions"],
+  "scripts": {
+    "test": "npm -w functions run test:core && npm -w functions run test:emu",
+    "build": "npm -w functions run build",
+    "typecheck": "npm -w functions run typecheck",
+    "lint": "npm -w functions run typecheck"
+  }
+}

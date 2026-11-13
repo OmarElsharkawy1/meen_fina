@@ -1,0 +1,16 @@
+export type ErrorReason =
+  | 'unauthenticated'
+  | 'invalid-input'
+  | 'not-found'
+  | 'code-inactive'
+  | 'banned'
+  | 'group-full'
+  | 'not-member'
+  | 'not-admin'
+  | 'too-few-members'
+  | 'too-few-votes'
+  | 'not-eligible'
+  | 'cannot-vote-self'
+  | 'question-closed'
+  | 'admin-must-transfer'
+  | 'not-allowed';

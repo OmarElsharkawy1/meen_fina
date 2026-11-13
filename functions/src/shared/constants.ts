@@ -1,0 +1,10 @@
+export const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+export const CODE_LENGTH = 6;
+export const MAX_MEMBERS = 50;
+export const MIN_MEMBERS_TO_ASK = 3;
+export const MIN_VOTES_TO_REVEAL = 3;
+export const WINNERS_ONLY_BELOW = 5;
+export const QUESTION_MAX_LEN = 150;
+export const GROUP_NAME_MAX_LEN = 40;
+export const AUTO_REVEAL_MS = 48 * 3600 * 1000;
+export const REGION = 'europe-west1';
