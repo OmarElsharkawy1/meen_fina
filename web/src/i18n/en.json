@@ -31,7 +31,7 @@
     "not-eligible": "You can't vote on this one.",
     "cannot-vote-self": "You can't vote for yourself.",
     "question-closed": "This question is closed.",
-    "admin-must-transfer": "Transfer admin to someone else before leaving.",
+    "admin-must-transfer": "Make someone else admin first, then leave.",
     "not-allowed": "You're not allowed to do that."
   },
   "screens": {
@@ -48,7 +48,28 @@
   "settings": {
     "language": "Language",
     "english": "English",
-    "arabic": "العربية"
+    "arabic": "العربية",
+    "shareText": "Join my group \"{{name}}\" on Meen Fina: {{link}}",
+    "code": "Invite code",
+    "codeOff": "Code is off — nobody can join",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "turnOff": "Turn code off",
+    "turnOn": "Turn code on",
+    "regenerate": "Regenerate code",
+    "regenerateConfirm": "Generate a new code? The old code and link will stop working.",
+    "members": "Members",
+    "admin": "Admin",
+    "kick": "Remove",
+    "kickConfirm": "Remove {{name}} from the group? They won't be able to rejoin unless you allow it.",
+    "makeAdmin": "Make admin",
+    "makeAdminConfirm": "Make {{name}} the admin? You'll lose admin rights.",
+    "removed": "Removed members",
+    "allowBack": "Allow back",
+    "mute": "Mute notifications",
+    "unmute": "Unmute notifications",
+    "leave": "Leave group",
+    "leaveConfirm": "Leave this group?"
   },
   "home": {
     "empty": "No groups yet. Create one or join with a code.",

@@ -41,7 +41,13 @@ export function Home() {
   }
 
   return (
-    <Screen title={t('screens.home')}>
+    <Screen>
+      <div className="title-row">
+        <h1>{t('screens.home')}</h1>
+        <Link to="/settings" className="icon-link" aria-label={t('screens.settings')}>
+          ⚙
+        </Link>
+      </div>
       {groupsLoading ? (
         <div className="stack" aria-busy="true">
           <span className="skeleton" style={{ blockSize: 64 }} />
