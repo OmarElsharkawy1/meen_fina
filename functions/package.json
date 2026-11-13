@@ -5,7 +5,7 @@
   "engines": { "node": "22" },
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.test.json",
     "test:core": "vitest run test/core",
     "test:emu": "firebase emulators:exec --only firestore,auth --project demo-meen-fina \"sh scripts/run-vitest.sh test/emu test/rules\""
   },
