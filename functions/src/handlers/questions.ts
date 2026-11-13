@@ -135,6 +135,7 @@ export async function castVote(ctx: Ctx, input: CastVoteInput): Promise<CastVote
 
     const votedUids = q.votedUids.includes(uid) ? q.votedUids : [...q.votedUids, uid];
     tx.set(ctx.db.doc(`votes/${questionId}_${uid}`), vote);
+    const firstVote = !q.votedUids.includes(uid);
 
     if (
       revealDecision(q.eligibleUids.length, votedUids.length) === 'reveal' &&
@@ -144,7 +145,7 @@ export async function castVote(ctx: Ctx, input: CastVoteInput): Promise<CastVote
       tx.update(qRef, { votedUids });
       return { revealed: true };
     }
-    tx.update(qRef, { votedUids });
+    if (firstVote) tx.update(qRef, { votedUids });
     return { revealed: false };
   });
 }

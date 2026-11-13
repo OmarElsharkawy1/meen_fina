@@ -12,7 +12,7 @@ export function expiryDecision(votedCount: number): 'reveal' | 'expire' {
 }
 
 export function removeMemberFromQuestion(
-  q: Pick<QuestionDoc, 'eligibleUids' | 'votedUids' | 'people'>,
+  q: Pick<QuestionDoc, 'eligibleUids' | 'votedUids' | 'people' | 'askerUid'>,
   uid: string,
   // Kept for signature stability: votes for the leaver are left in place and become void.
   _votes: Array<{ voterUid: string; targetUid: string }>,
@@ -23,7 +23,8 @@ export function removeMemberFromQuestion(
   voterUidsToDelete: string[];
 } {
   const people = { ...q.people };
-  delete people[uid];
+  // The asker's name must stay visible; anyone else leaves no trace.
+  if (uid !== q.askerUid) delete people[uid];
   return {
     eligibleUids: q.eligibleUids.filter((u) => u !== uid),
     votedUids: q.votedUids.filter((u) => u !== uid),

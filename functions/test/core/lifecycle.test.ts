@@ -4,6 +4,7 @@ import { countValidVotes, expiryDecision, removeMemberFromQuestion, revealDecisi
 const v = (voterUid: string, targetUid: string) => ({ voterUid, targetUid });
 const p = (name: string) => ({ name, photoURL: null });
 const q = () => ({
+  askerUid: 'a',
   eligibleUids: ['a', 'b', 'c', 'd'],
   votedUids: ['a', 'b', 'c'],
   people: { a: p('A'), b: p('B'), c: p('C'), d: p('D') },
@@ -40,6 +41,11 @@ describe('removeMemberFromQuestion', () => {
     expect(r.votedUids).toContain('b');
     expect(r.voterUidsToDelete).toEqual(['c']);
     expect(r.eligibleUids).toEqual(['a', 'b', 'd']);
+  });
+  it('keeps the asker in people when the asker leaves', () => {
+    const r = removeMemberFromQuestion(q(), 'a', votes);
+    expect(r.eligibleUids).not.toContain('a');
+    expect(r.people).toHaveProperty('a');
   });
 });
 
