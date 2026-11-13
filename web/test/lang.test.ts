@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import ar from '../src/i18n/ar.json';
 import en from '../src/i18n/en.json';
+import i18n from '../src/i18n';
 import { detectLang } from '../src/lib/lang';
 
 function keyPaths(obj: Record<string, unknown>, prefix = ''): string[] {
@@ -8,9 +9,10 @@ function keyPaths(obj: Record<string, unknown>, prefix = ''): string[] {
     .flatMap(([k, v]) =>
       v && typeof v === 'object'
         ? keyPaths(v as Record<string, unknown>, `${prefix}${k}.`)
-        : [`${prefix}${k}`],
+        : [`${prefix}${k}`.replace(/_(zero|one|two|few|many|other)$/, '')],
     )
-    .sort();
+    .sort()
+    .filter((k, i, a) => a.indexOf(k) === i);
 }
 
 describe('detectLang', () => {
@@ -32,5 +34,14 @@ describe('i18n catalogs', () => {
   it('appName values', () => {
     expect(en.appName).toBe('Meen Fina');
     expect(ar.appName).toBe('مين فينا؟');
+  });
+});
+
+describe('arabic plurals', () => {
+  it.each([0, 1, 2, 3, 11, 100])('member count %i resolves without English fallback', (count) => {
+    const arText = i18n.getFixedT('ar')('home.members', { count });
+    const enText = i18n.getFixedT('en')('home.members', { count });
+    expect(arText).not.toBe(enText);
+    expect(arText).not.toMatch(/[A-Za-z]/);
   });
 });

@@ -54,7 +54,11 @@
     "empty": "لسه مفيش مجموعات. اعمل واحدة أو ادخل بكود.",
     "create": "إنشاء مجموعة",
     "join": "الانضمام بكود",
+    "members_zero": "مفيش أعضاء",
     "members_one": "عضو واحد",
+    "members_two": "عضوين",
+    "members_few": "{{count}} أعضاء",
+    "members_many": "{{count}} عضو",
     "members_other": "{{count}} عضو"
   },
   "create": {

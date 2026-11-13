@@ -22,6 +22,7 @@ export function JoinLink() {
   // Wait for auth to settle so `alreadyMember` reflects the signed-in user.
   useEffect(() => {
     if (loading) return;
+    if (uid) clearPendingJoin();
     let active = true;
     setPreview(null);
     setError(null);
@@ -37,12 +38,14 @@ export function JoinLink() {
         }
       })
       .catch((err) => {
-        if (active) setError(t(errorKey(reasonOf(err))));
+        if (!active) return;
+        clearPendingJoin();
+        setError(t(errorKey(reasonOf(err))));
       });
     return () => {
       active = false;
     };
-  }, [code, loading, uid, navigate, t]);
+  }, [code, loading, uid, navigate]);
 
   useEffect(() => {
     if (preview) actionRef.current?.focus();

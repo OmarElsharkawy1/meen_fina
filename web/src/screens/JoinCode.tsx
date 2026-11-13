@@ -29,7 +29,7 @@ export function JoinCode() {
             spellCheck={false}
             maxLength={CODE_LENGTH}
             dir="ltr"
-            onChange={(e) => setCode(e.target.value.toUpperCase().replace(/\s/g, ''))}
+            onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
             autoFocus
           />
         </label>
