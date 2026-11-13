@@ -14,7 +14,13 @@
   "auth": {
     "signIn": "Continue with Google",
     "signOut": "Sign out",
+    "signInFailed": "Sign-in failed. Please try again.",
     "signInRequired": "Sign in to continue"
+  },
+  "crash": {
+    "title": "Something went wrong",
+    "body": "Please reload the page to continue.",
+    "reload": "Reload"
   },
   "errors": {
     "unknown": "Something went wrong. Please try again.",

@@ -13,10 +13,10 @@ function initialsOf(name: string): string {
   return chars.join('') || '?';
 }
 
-type Props = { uid: string; person: Person; size?: number };
+type Props = { uid: string; person: Person; size?: number; /** Name is shown next to it: hide from screen readers. */ decorative?: boolean };
 
 /** Photo avatar with a colored initials fallback. */
-export function Avatar({ uid, person, size = 40 }: Props) {
+export function Avatar({ uid, person, size = 40, decorative }: Props) {
   const style = { '--avatar-size': `${size}px`, '--hue': hueOf(uid) } as CSSProperties;
   if (person.photoURL) {
     return (
@@ -24,14 +24,20 @@ export function Avatar({ uid, person, size = 40 }: Props) {
         className="avatar"
         style={style}
         src={person.photoURL}
-        alt={person.name}
+        alt={decorative ? '' : person.name}
         referrerPolicy="no-referrer"
         loading="lazy"
       />
     );
   }
   return (
-    <span className="avatar avatar-initials" style={style} role="img" aria-label={person.name}>
+    <span
+      className="avatar avatar-initials"
+      style={style}
+      role={decorative ? undefined : 'img'}
+      aria-label={decorative ? undefined : person.name}
+      aria-hidden={decorative || undefined}
+    >
       {initialsOf(person.name)}
     </span>
   );

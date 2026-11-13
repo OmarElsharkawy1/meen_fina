@@ -24,7 +24,7 @@ export function MemberGrid({ uids, people, selected, disabled, onPick }: Props) 
               disabled={disabled}
               onClick={() => onPick(uid)}
             >
-              <Avatar uid={uid} person={person} size={56} />
+              <Avatar uid={uid} person={person} decorative size={56} />
               <span className="member-name" dir="auto">
                 {person.name}
               </span>

@@ -71,7 +71,11 @@ export function GroupSettings() {
   const link = shareLink(window.location.origin, group.code);
   const shareText = t('settings.shareText', { name: group.name, link });
   const memberIds = Object.keys(group.members).sort((a, b) =>
-    a === group.adminUid ? -1 : b === group.adminUid ? 1 : a.localeCompare(b),
+    a === group.adminUid
+      ? -1
+      : b === group.adminUid
+        ? 1
+        : group.members[a].name.localeCompare(group.members[b].name),
   );
   const showShare = group.codeActive || isAdmin;
 
@@ -172,7 +176,7 @@ export function GroupSettings() {
             return (
               <li key={m} className="card stack">
                 <div className="member-row">
-                  <Avatar uid={m} person={person} size={40} />
+                  <Avatar uid={m} person={person} decorative size={40} />
                   <span dir="auto" className="member-name">
                     {person.name}
                   </span>
@@ -218,7 +222,7 @@ export function GroupSettings() {
           <ul className="stack list">
             {banned.map((b) => (
               <li key={b.id} className="card member-row">
-                <Avatar uid={b.id} person={b} size={40} />
+                <Avatar uid={b.id} person={b} decorative size={40} />
                 <span dir="auto" className="member-name">
                   {b.name}
                 </span>

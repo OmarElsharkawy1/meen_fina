@@ -86,7 +86,7 @@ export function JoinLink() {
       ) : (
         <div className="stack">
           <div className="card">
-            <strong>{preview.name}</strong>
+            <strong dir="auto">{preview.name}</strong>
             <div className="muted">{t('home.members', { count: preview.memberCount })}</div>
           </div>
           {error ? (

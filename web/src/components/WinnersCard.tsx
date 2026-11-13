@@ -15,7 +15,7 @@ export function WinnersCard({ winnerUids, people }: Props) {
         return (
           <div key={uid} className="winner-row">
             <span aria-hidden="true">🥇</span>
-            <Avatar uid={uid} person={person} size={48} />
+            <Avatar uid={uid} person={person} decorative size={48} />
             <strong dir="auto">{person.name}</strong>
           </div>
         );

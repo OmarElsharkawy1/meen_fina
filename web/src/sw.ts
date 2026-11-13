@@ -53,10 +53,6 @@ registerRoute(
   new NavigationRoute(createHandlerBoundToURL('index.html'), { denylist: [/^\/__\//] }),
 );
 
-self.addEventListener('message', (event) => {
-  if (event.data?.type === 'SKIP_WAITING') void self.skipWaiting();
-});
-
 // Initializing messaging lets the FCM SDK display payloads that carry a `notification`.
 // Must run synchronously at SW start so its push listener is registered in time.
 const env = import.meta.env;

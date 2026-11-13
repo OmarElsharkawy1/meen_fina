@@ -9,7 +9,7 @@ import { clearPendingJoin, getPendingJoin } from '../lib/pendingJoin';
 
 export function Home() {
   const { t } = useTranslation();
-  const { user, loading } = useAuth();
+  const { user, loading, authError } = useAuth();
   const navigate = useNavigate();
   const { groups, loading: groupsLoading } = useMyGroups(user?.uid);
 
@@ -35,6 +35,11 @@ export function Home() {
       <Screen>
         <h1>{t('appName')}</h1>
         <p className="muted">{t('tagline')}</p>
+        {authError ? (
+          <p role="alert" className="error">
+            {t(authError)}
+          </p>
+        ) : null}
         <SignInButton />
       </Screen>
     );
@@ -60,7 +65,7 @@ export function Home() {
           {groups.map((g) => (
             <li key={g.id}>
               <Link to={`/g/${g.id}`} className="card group-row">
-                <strong>{g.name}</strong>
+                <strong dir="auto">{g.name}</strong>
                 <span className="muted">{t('home.members', { count: g.memberUids.length })}</span>
               </Link>
             </li>

@@ -16,7 +16,7 @@ export function Leaderboard({ totals, people }: Props) {
         return (
           <li key={r.uid} className={r.isTop ? 'leader-row leader-top' : 'leader-row'}>
             <span className="leader-rank">{r.isTop ? '🥇' : r.rank}</span>
-            <Avatar uid={r.uid} person={person} size={36} />
+            <Avatar uid={r.uid} person={person} decorative size={36} />
             <span className="leader-name" dir="auto">
               {person.name}
             </span>
