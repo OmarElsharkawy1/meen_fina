@@ -70,5 +70,41 @@
     "codeLabel": "كود الدعوة",
     "continue": "متابعة",
     "join": "انضم للمجموعة"
+  },
+  "group": {
+    "open": "مفتوحة",
+    "closed": "مقفولة",
+    "ask": "+ اسأل",
+    "askNeedsMembers": "محتاج {{min}} أعضاء على الأقل عشان تسأل.",
+    "noQuestions": "لسه مفيش أسئلة. اسأل أول سؤال!",
+    "askedBy": "سأل {{name}}",
+    "voted": "{{voted}}/{{total}} صوّتوا",
+    "vote": "صوّت",
+    "topLine": "🥇 {{name}} · {{votes}}",
+    "winnerLine": "🥇 {{name}}"
+  },
+  "ask": {
+    "label": "مين فينا...؟",
+    "placeholder": "مين أكتر واحد بيتأخر؟",
+    "counter": "{{n}}/{{max}}",
+    "submit": "اسأل الجروب"
+  },
+  "question": {
+    "tapToVote": "دوس على اسم عشان تصوّت",
+    "changeVote": "صوّتّ. دوس على اسم تاني لو عايز تغيّر.",
+    "waitingOn": "لسه مستنيين",
+    "notEligible": "انضميت بعد ما السؤال اتسأل.",
+    "reveal": "اكشف دلوقتي",
+    "revealNeedsVotes": "الكشف بيتفتح عند {{min}} أصوات.",
+    "winnersNote": "الجروب صغير: هيظهر الفايز بس",
+    "expired": "الأصوات مش كفاية",
+    "delete": "امسح السؤال",
+    "deleteConfirm": "تمسح السؤال ده للكل؟",
+    "votes_zero": "مفيش أصوات",
+    "votes_one": "صوت واحد",
+    "votes_two": "صوتين",
+    "votes_few": "{{count}} أصوات",
+    "votes_many": "{{count}} صوت",
+    "votes_other": "{{count}} صوت"
   }
 }

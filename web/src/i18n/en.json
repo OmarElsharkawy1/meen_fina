@@ -66,5 +66,37 @@
     "codeLabel": "Invite code",
     "continue": "Continue",
     "join": "Join group"
+  },
+  "group": {
+    "open": "Open",
+    "closed": "Closed",
+    "ask": "+ Ask",
+    "askNeedsMembers": "You need at least {{min}} members to ask a question.",
+    "noQuestions": "No questions yet. Ask the first one!",
+    "askedBy": "asked by {{name}}",
+    "voted": "{{voted}}/{{total}} voted",
+    "vote": "Vote",
+    "topLine": "🥇 {{name}} · {{votes}}",
+    "winnerLine": "🥇 {{name}}"
+  },
+  "ask": {
+    "label": "Who in the group...?",
+    "placeholder": "Who is most likely to be late?",
+    "counter": "{{n}}/{{max}}",
+    "submit": "Ask the group"
+  },
+  "question": {
+    "tapToVote": "Tap a name to vote",
+    "changeVote": "Voted. Tap another name to change your vote.",
+    "waitingOn": "Still waiting on",
+    "notEligible": "You joined after this question was asked.",
+    "reveal": "Reveal now",
+    "revealNeedsVotes": "Reveal unlocks at {{min}} votes.",
+    "winnersNote": "Small group: only the winner is shown",
+    "expired": "Not enough votes",
+    "delete": "Delete question",
+    "deleteConfirm": "Delete this question for everyone?",
+    "votes_one": "{{count}} vote",
+    "votes_other": "{{count}} votes"
   }
 }

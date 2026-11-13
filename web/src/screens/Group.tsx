@@ -1,3 +1,153 @@
-import { makeScreen } from './makeScreen';
+import { useTranslation } from 'react-i18next';
+import { Link, useParams } from 'react-router-dom';
+import { MIN_MEMBERS_TO_ASK } from '@shared/constants';
+import { SignInButton } from '../auth/SignInButton';
+import { useAuth } from '../auth/AuthProvider';
+import { Screen } from '../components/Screen';
+import { useGroup } from '../data/useGroup';
+import { useQuestions, type QuestionWithId } from '../data/useQuestions';
+import { rankLeaderboard } from '../lib/leaderboard';
 
-export const Group = makeScreen('screens.group');
+function closedAtMs(q: QuestionWithId): number {
+  return (q.closedAt ?? q.createdAt)?.toMillis() ?? 0;
+}
+
+function TopLine({ q }: { q: QuestionWithId }) {
+  const { t } = useTranslation();
+  const nameOf = (uid: string) => q.people[uid]?.name ?? '?';
+  if (q.status === 'expired') return <span className="muted">{t('question.expired')}</span>;
+  if (q.results?.mode === 'winners') {
+    return (
+      <span dir="auto">
+        {t('group.winnerLine', { name: q.results.winnerUids.map(nameOf).join(', ') })}
+      </span>
+    );
+  }
+  if (q.results?.mode === 'full') {
+    const top = rankLeaderboard(q.results.totals).filter((r) => r.isTop);
+    if (top.length > 0) {
+      return (
+        <span dir="auto">
+          {t('group.topLine', {
+            name: top.map((r) => nameOf(r.uid)).join(', '),
+            votes: t('question.votes', { count: top[0].votes }),
+          })}
+        </span>
+      );
+    }
+  }
+  return null;
+}
+
+export function Group() {
+  const { t } = useTranslation();
+  const { groupId = '' } = useParams();
+  const { user, loading: authLoading } = useAuth();
+  const { group, loading: groupLoading } = useGroup(user ? groupId : undefined);
+  const { questions, loading: qLoading } = useQuestions(group ? groupId : undefined);
+
+  if (authLoading || (user && groupLoading)) {
+    return (
+      <Screen back="/">
+        <div className="stack" aria-busy="true">
+          <span className="skeleton" style={{ blockSize: 40 }} />
+          <span className="skeleton" style={{ blockSize: 88 }} />
+          <span className="skeleton" style={{ blockSize: 88 }} />
+        </div>
+      </Screen>
+    );
+  }
+  if (!user) {
+    return (
+      <Screen back="/">
+        <p className="muted">{t('auth.signInRequired')}</p>
+        <SignInButton />
+      </Screen>
+    );
+  }
+  if (!group) {
+    return (
+      <Screen back="/">
+        <p role="alert" className="error">
+          {t('errors.not-member')}
+        </p>
+      </Screen>
+    );
+  }
+
+  const open = questions.filter((q) => q.status === 'open');
+  const closed = questions
+    .filter((q) => q.status !== 'open')
+    .sort((a, b) => closedAtMs(b) - closedAtMs(a));
+  const canAsk = group.memberUids.length >= MIN_MEMBERS_TO_ASK;
+
+  return (
+    <Screen back="/">
+      <div className="title-row">
+        <h1 dir="auto">{group.name}</h1>
+        <Link to={`/g/${groupId}/settings`} className="icon-link" aria-label={t('screens.groupSettings')}>
+          ⚙
+        </Link>
+      </div>
+      {canAsk ? (
+        <Link to={`/g/${groupId}/ask`} className="btn btn-primary">
+          {t('group.ask')}
+        </Link>
+      ) : (
+        <div className="stack">
+          <button type="button" className="btn btn-primary" disabled>
+            {t('group.ask')}
+          </button>
+          <p className="muted">{t('group.askNeedsMembers', { min: MIN_MEMBERS_TO_ASK })}</p>
+        </div>
+      )}
+
+      {qLoading ? (
+        <div className="stack" aria-busy="true">
+          <span className="skeleton" style={{ blockSize: 88 }} />
+          <span className="skeleton" style={{ blockSize: 88 }} />
+        </div>
+      ) : questions.length === 0 ? (
+        <p className="muted">{t('group.noQuestions')}</p>
+      ) : (
+        <>
+          {open.length > 0 ? (
+            <section className="stack">
+              <h2>{t('group.open')}</h2>
+              <ul className="stack list">
+                {open.map((q) => (
+                  <li key={q.id} className="card stack">
+                    <strong dir="auto">{q.text}</strong>
+                    <span className="muted">
+                      {t('group.askedBy', { name: q.people[q.askerUid]?.name ?? group.members[q.askerUid]?.name ?? '?' })}
+                      {' · '}
+                      {t('group.voted', { voted: q.votedUids.length, total: q.eligibleUids.length })}
+                    </span>
+                    <Link to={`/g/${groupId}/q/${q.id}`} className="btn btn-secondary">
+                      {t('group.vote')}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+          {closed.length > 0 ? (
+            <section className="stack">
+              <h2>{t('group.closed')}</h2>
+              <ul className="stack list">
+                {closed.map((q) => (
+                  <li key={q.id}>
+                    <Link to={`/g/${groupId}/q/${q.id}`} className="card group-row">
+                      <strong dir="auto">{q.text}</strong>
+                      <TopLine q={q} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </>
+      )}
+    </Screen>
+  );
+}
