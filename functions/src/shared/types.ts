@@ -55,3 +55,17 @@ export type UserDoc = {
   fcmTokens: string[];
   mutedGroupIds: string[];
 };
+
+export type CreateGroupInput = { name: string };
+export type CreateGroupOutput = { groupId: string; code: string };
+
+export type PreviewGroupInput = { code: string };
+export type PreviewGroupOutput = {
+  groupId: string;
+  name: string;
+  memberCount: number;
+  alreadyMember: boolean;
+};
+
+export type JoinGroupInput = { code: string };
+export type JoinGroupOutput = { groupId: string };
