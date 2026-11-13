@@ -14,22 +14,20 @@ export function expiryDecision(votedCount: number): 'reveal' | 'expire' {
 export function removeMemberFromQuestion(
   q: Pick<QuestionDoc, 'eligibleUids' | 'votedUids' | 'people'>,
   uid: string,
-  votes: Array<{ voterUid: string; targetUid: string }>,
+  // Kept for signature stability: votes for the leaver are left in place and become void.
+  _votes: Array<{ voterUid: string; targetUid: string }>,
 ): {
   eligibleUids: string[];
   votedUids: string[];
   people: Record<string, Person>;
   voterUidsToDelete: string[];
 } {
-  const toDelete = new Set<string>();
-  if (q.votedUids.includes(uid)) toDelete.add(uid);
-  for (const v of votes) if (v.targetUid === uid) toDelete.add(v.voterUid);
   const people = { ...q.people };
   delete people[uid];
   return {
     eligibleUids: q.eligibleUids.filter((u) => u !== uid),
-    votedUids: q.votedUids.filter((u) => !toDelete.has(u)),
+    votedUids: q.votedUids.filter((u) => u !== uid),
     people,
-    voterUidsToDelete: [...toDelete],
+    voterUidsToDelete: q.votedUids.includes(uid) ? [uid] : [],
   };
 }

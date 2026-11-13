@@ -27,17 +27,18 @@ describe('expiryDecision', () => {
 });
 
 describe('removeMemberFromQuestion', () => {
-  it('removes a non-voter targeted by a vote', () => {
+  it('removes a non-voter; votes for them stay and voters stay voted', () => {
     const r = removeMemberFromQuestion(q(), 'd', votes);
     expect(r.eligibleUids).toEqual(['a', 'b', 'c']);
-    expect(r.votedUids).toEqual(['b', 'c']);
-    expect(r.voterUidsToDelete).toEqual(['a']);
+    expect(r.votedUids).toEqual(['a', 'b', 'c']);
+    expect(r.voterUidsToDelete).toEqual([]);
     expect(r.people).not.toHaveProperty('d');
   });
-  it('removes a voter and those who voted for them', () => {
+  it('removes a voter and deletes only their own vote', () => {
     const r = removeMemberFromQuestion(q(), 'c', votes);
-    expect(r.votedUids).toEqual(['a']);
-    expect([...r.voterUidsToDelete].sort()).toEqual(['b', 'c']);
+    expect(r.votedUids).toEqual(['a', 'b']);
+    expect(r.votedUids).toContain('b');
+    expect(r.voterUidsToDelete).toEqual(['c']);
     expect(r.eligibleUids).toEqual(['a', 'b', 'd']);
   });
 });

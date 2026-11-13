@@ -124,7 +124,13 @@ export async function leaveGroup(ctx: Ctx, input: LeaveGroupInput): Promise<Leav
     return false;
   });
 
-  if (groupDeleted) await deleteGroupLeftovers(ctx.db, groupId);
+  if (groupDeleted) {
+    try {
+      await deleteGroupLeftovers(ctx.db, groupId);
+    } catch (err) {
+      console.error('deleteGroupLeftovers failed', groupId, err);
+    }
+  }
   return { groupDeleted };
 }
 
@@ -212,6 +218,7 @@ export async function transferAdmin(ctx: Ctx, input: TransferAdminInput): Promis
   await ctx.db.runTransaction(async (tx) => {
     const group = await getGroupOrFail(ctx.db, tx, groupId);
     requireAdmin(group, uid);
+    if (target === uid) return fail('invalid-input', 'invalid-argument');
     if (!group.data.memberUids.includes(target)) return fail('not-member', 'permission-denied');
     tx.update(group.ref, { adminUid: target });
   });

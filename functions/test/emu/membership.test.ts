@@ -96,10 +96,31 @@ describe('open question cleanup', () => {
     const q = await getQ(questionId);
     expect(q.eligibleUids).not.toContain('d');
     expect(q.people.d).toBeUndefined();
-    expect([...q.votedUids].sort()).toEqual(['b', 'c']);
+    expect([...q.votedUids].sort()).toEqual(['a', 'b', 'c']);
     expect(q.status).toBe('open');
-    expect((await db().doc(`votes/${questionId}_a`).get()).exists).toBe(false);
+    expect((await db().doc(`votes/${questionId}_a`).get()).exists).toBe(true);
     expect((await db().doc(`votes/${questionId}_b`).get()).exists).toBe(true);
+  });
+
+  it('deletes the vote of a voter who leaves and drops them from votedUids', async () => {
+    const { groupId, questionId } = await openQuestion();
+    await castVote(ctxFor('b'), { groupId, questionId, targetUid: 'c' });
+    await leaveGroup(ctxFor('b'), { groupId });
+    const q = await getQ(questionId);
+    expect(q.votedUids).not.toContain('b');
+    expect((await db().doc(`votes/${questionId}_b`).get()).exists).toBe(false);
+  });
+
+  it('expires instead of revealing when valid votes fall below the minimum', async () => {
+    const { groupId, questionId } = await openQuestion();
+    await castVote(ctxFor('a'), { groupId, questionId, targetUid: 'e' });
+    await castVote(ctxFor('b'), { groupId, questionId, targetUid: 'e' });
+    await castVote(ctxFor('c'), { groupId, questionId, targetUid: 'a' });
+    await castVote(ctxFor('d'), { groupId, questionId, targetUid: 'a' });
+    await kickMember(ctxFor('a'), { groupId, uid: 'e' });
+    const q = await getQ(questionId);
+    expect(q.status).toBe('expired');
+    expect(q.results).toBeNull();
   });
 
   it('triggers reveal when remaining members have all voted', async () => {
@@ -158,6 +179,7 @@ describe('code management', () => {
   it('transferAdmin requires admin and a member target', async () => {
     const { groupId } = await seedGroup({ adminUid: 'a', memberUids: ['a', 'b'] });
     await expectReason(transferAdmin(ctxFor('b'), { groupId, uid: 'b' }), 'not-admin');
+    await expectReason(transferAdmin(ctxFor('a'), { groupId, uid: 'a' }), 'invalid-input');
     await expectReason(transferAdmin(ctxFor('a'), { groupId, uid: 'zed' }), 'not-member');
     await transferAdmin(ctxFor('a'), { groupId, uid: 'b' });
     expect((await db().doc(`groups/${groupId}`).get()).data()!.adminUid).toBe('b');

@@ -33,8 +33,12 @@ export function finalizeQuestion(
   votes: VoteDoc[],
   now: Timestamp,
 ): void {
+  const eligible = new Set(q.eligibleUids);
+  const validVotes = votes.filter((v) => eligible.has(v.voterUid) && eligible.has(v.targetUid));
+  const effective =
+    outcome === 'reveal' && validVotes.length < MIN_VOTES_TO_REVEAL ? 'expire' : outcome;
   const update: Partial<QuestionDoc> =
-    outcome === 'reveal'
+    effective === 'reveal'
       ? { status: 'revealed', closedAt: now, results: computeResults(q.eligibleUids, votes) }
       : { status: 'expired', closedAt: now, results: null };
   tx.update(qRef, update);
