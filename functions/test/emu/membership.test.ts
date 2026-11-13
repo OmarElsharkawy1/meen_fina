@@ -8,7 +8,7 @@ import {
   transferAdmin,
   unbanMember,
 } from '../../src/handlers/membership';
-import { askQuestion, castVote } from '../../src/handlers/questions';
+import { askQuestion, castVote, revealQuestion } from '../../src/handlers/questions';
 import type { QuestionDoc } from '../../src/shared/types';
 import { clearFirestore, ctxFor, db, expectReason, seedGroup } from './helpers';
 
@@ -111,7 +111,7 @@ describe('open question cleanup', () => {
     expect((await db().doc(`votes/${questionId}_b`).get()).exists).toBe(false);
   });
 
-  it('expires instead of revealing when valid votes fall below the minimum', async () => {
+  it('stays open when valid votes are below the minimum, then reveals after re-votes', async () => {
     const { groupId, questionId } = await openQuestion();
     await castVote(ctxFor('a'), { groupId, questionId, targetUid: 'e' });
     await castVote(ctxFor('b'), { groupId, questionId, targetUid: 'e' });
@@ -119,8 +119,34 @@ describe('open question cleanup', () => {
     await castVote(ctxFor('d'), { groupId, questionId, targetUid: 'a' });
     await kickMember(ctxFor('a'), { groupId, uid: 'e' });
     const q = await getQ(questionId);
-    expect(q.status).toBe('expired');
+    expect(q.status).toBe('open');
     expect(q.results).toBeNull();
+    expect(q.votedUids).toHaveLength(4);
+    const r = await castVote(ctxFor('a'), { groupId, questionId, targetUid: 'b' });
+    expect(r.revealed).toBe(true);
+    expect((await getQ(questionId)).status).toBe('revealed');
+  });
+
+  it('castVote does not reveal when all voted but valid votes < 3', async () => {
+    const { groupId, questionId } = await openQuestion();
+    for (const v of ['a', 'b', 'c']) {
+      await castVote(ctxFor(v), { groupId, questionId, targetUid: 'e' });
+    }
+    await castVote(ctxFor('d'), { groupId, questionId, targetUid: 'a' });
+    await kickMember(ctxFor('a'), { groupId, uid: 'e' });
+    const r = await castVote(ctxFor('d'), { groupId, questionId, targetUid: 'b' });
+    expect(r.revealed).toBe(false);
+    expect((await getQ(questionId)).status).toBe('open');
+  });
+
+  it('manual reveal needs 3 valid votes', async () => {
+    const { groupId, questionId } = await openQuestion();
+    await castVote(ctxFor('a'), { groupId, questionId, targetUid: 'e' });
+    await castVote(ctxFor('b'), { groupId, questionId, targetUid: 'c' });
+    await castVote(ctxFor('c'), { groupId, questionId, targetUid: 'b' });
+    await kickMember(ctxFor('a'), { groupId, uid: 'e' });
+    await expectReason(revealQuestion(ctxFor('a'), { groupId, questionId }), 'too-few-votes');
+    expect((await getQ(questionId)).status).toBe('open');
   });
 
   it('triggers reveal when remaining members have all voted', async () => {

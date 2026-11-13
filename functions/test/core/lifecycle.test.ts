@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { expiryDecision, removeMemberFromQuestion, revealDecision } from '../../src/core/lifecycle';
+import { countValidVotes, expiryDecision, removeMemberFromQuestion, revealDecision } from '../../src/core/lifecycle';
 
 const v = (voterUid: string, targetUid: string) => ({ voterUid, targetUid });
 const p = (name: string) => ({ name, photoURL: null });
@@ -40,5 +40,11 @@ describe('removeMemberFromQuestion', () => {
     expect(r.votedUids).toContain('b');
     expect(r.voterUidsToDelete).toEqual(['c']);
     expect(r.eligibleUids).toEqual(['a', 'b', 'd']);
+  });
+});
+
+describe('countValidVotes', () => {
+  it('ignores votes by or for non-eligible users', () => {
+    expect(countValidVotes(['a', 'b', 'c'], [v('a', 'b'), v('b', 'd'), v('d', 'a'), v('c', 'a')])).toBe(2);
   });
 });

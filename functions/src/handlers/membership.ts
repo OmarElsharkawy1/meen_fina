@@ -2,7 +2,8 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import type { DocumentReference, Firestore, Timestamp, Transaction } from 'firebase-admin/firestore';
 import { generateCode } from '../core/codes';
-import { removeMemberFromQuestion, revealDecision } from '../core/lifecycle';
+import { countValidVotes, removeMemberFromQuestion, revealDecision } from '../core/lifecycle';
+import { MIN_VOTES_TO_REVEAL } from '../shared/constants';
 import type {
   BannedDoc,
   CodeDoc,
@@ -87,7 +88,13 @@ export function applyMemberRemoval(
       people: updated.people,
     });
     const decision = revealDecision(updated.eligibleUids.length, updated.votedUids.length);
-    if (decision !== 'wait') finalizeQuestion(tx, ref, updated, decision, remaining, now);
+    if (decision === 'expire') finalizeQuestion(tx, ref, updated, 'expire', remaining, now);
+    else if (
+      decision === 'reveal' &&
+      countValidVotes(updated.eligibleUids, remaining) >= MIN_VOTES_TO_REVEAL
+    ) {
+      finalizeQuestion(tx, ref, updated, 'reveal', remaining, now);
+    }
   }
 }
 

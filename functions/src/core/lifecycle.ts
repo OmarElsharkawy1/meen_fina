@@ -31,3 +31,12 @@ export function removeMemberFromQuestion(
     voterUidsToDelete: q.votedUids.includes(uid) ? [uid] : [],
   };
 }
+
+/** Votes whose voter and target are both currently eligible. */
+export function countValidVotes(
+  eligibleUids: string[],
+  votes: Array<{ voterUid: string; targetUid: string }>,
+): number {
+  const eligible = new Set(eligibleUids);
+  return votes.filter((v) => eligible.has(v.voterUid) && eligible.has(v.targetUid)).length;
+}

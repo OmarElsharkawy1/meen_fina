@@ -1,6 +1,6 @@
 import type { DocumentReference, Timestamp, Transaction } from 'firebase-admin/firestore';
 import { computeResults } from '../core/results';
-import { revealDecision } from '../core/lifecycle';
+import { countValidVotes, revealDecision } from '../core/lifecycle';
 import {
   MIN_MEMBERS_TO_ASK,
   MIN_VOTES_TO_REVEAL,
@@ -33,10 +33,11 @@ export function finalizeQuestion(
   votes: VoteDoc[],
   now: Timestamp,
 ): void {
-  const eligible = new Set(q.eligibleUids);
-  const validVotes = votes.filter((v) => eligible.has(v.voterUid) && eligible.has(v.targetUid));
+  // Safety net: never reveal on fewer than the minimum valid votes.
   const effective =
-    outcome === 'reveal' && validVotes.length < MIN_VOTES_TO_REVEAL ? 'expire' : outcome;
+    outcome === 'reveal' && countValidVotes(q.eligibleUids, votes) < MIN_VOTES_TO_REVEAL
+      ? 'expire'
+      : outcome;
   const update: Partial<QuestionDoc> =
     effective === 'reveal'
       ? { status: 'revealed', closedAt: now, results: computeResults(q.eligibleUids, votes) }
@@ -135,7 +136,10 @@ export async function castVote(ctx: Ctx, input: CastVoteInput): Promise<CastVote
     const votedUids = q.votedUids.includes(uid) ? q.votedUids : [...q.votedUids, uid];
     tx.set(ctx.db.doc(`votes/${questionId}_${uid}`), vote);
 
-    if (revealDecision(q.eligibleUids.length, votedUids.length) === 'reveal') {
+    if (
+      revealDecision(q.eligibleUids.length, votedUids.length) === 'reveal' &&
+      countValidVotes(q.eligibleUids, votes) >= MIN_VOTES_TO_REVEAL
+    ) {
       finalizeQuestion(tx, qRef, { ...q, votedUids }, 'reveal', votes, ctx.now());
       tx.update(qRef, { votedUids });
       return { revealed: true };
@@ -165,6 +169,8 @@ export async function revealQuestion(ctx: Ctx, input: RevealQuestionInput): Prom
     const votesSnap = await tx.get(
       ctx.db.collection('votes').where('questionId', '==', questionId),
     );
-    finalizeQuestion(tx, qRef, q, 'reveal', votesSnap.docs.map((d) => d.data() as VoteDoc), ctx.now());
+    const votes = votesSnap.docs.map((d) => d.data() as VoteDoc);
+    if (countValidVotes(q.eligibleUids, votes) < MIN_VOTES_TO_REVEAL) return fail('too-few-votes');
+    finalizeQuestion(tx, qRef, q, 'reveal', votes, ctx.now());
   });
 }
