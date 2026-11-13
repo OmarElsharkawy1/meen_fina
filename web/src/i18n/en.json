@@ -1,0 +1,53 @@
+{
+  "appName": "Meen Fina",
+  "tagline": "Who in the group...? Vote anonymously.",
+  "common": {
+    "loading": "Loading",
+    "back": "Back",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "copy": "Copy",
+    "share": "Share",
+    "retry": "Try again"
+  },
+  "auth": {
+    "signIn": "Continue with Google",
+    "signOut": "Sign out",
+    "signInRequired": "Sign in to continue"
+  },
+  "errors": {
+    "unknown": "Something went wrong. Please try again.",
+    "unauthenticated": "Please sign in first.",
+    "invalid-input": "That doesn't look right. Check and try again.",
+    "not-found": "We couldn't find that.",
+    "code-inactive": "This invite code is turned off.",
+    "banned": "You can't join this group.",
+    "group-full": "This group is full.",
+    "not-member": "You're not a member of this group.",
+    "not-admin": "Only the group admin can do that.",
+    "too-few-members": "The group needs at least 3 members first.",
+    "too-few-votes": "Not enough votes yet to reveal.",
+    "not-eligible": "You can't vote on this one.",
+    "cannot-vote-self": "You can't vote for yourself.",
+    "question-closed": "This question is closed.",
+    "admin-must-transfer": "Transfer admin to someone else before leaving.",
+    "not-allowed": "You're not allowed to do that."
+  },
+  "screens": {
+    "home": "Your groups",
+    "createGroup": "Create a group",
+    "joinCode": "Join with a code",
+    "joinLink": "Join a group",
+    "group": "Group",
+    "ask": "Ask a question",
+    "question": "Question",
+    "groupSettings": "Group settings",
+    "settings": "Settings"
+  },
+  "settings": {
+    "language": "Language",
+    "english": "English",
+    "arabic": "العربية"
+  }
+}
