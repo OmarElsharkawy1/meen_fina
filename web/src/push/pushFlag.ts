@@ -42,3 +42,11 @@ export function dismissPush(): void {
     /* storage unavailable */
   }
 }
+
+export function clearPushDismissed(): void {
+  try {
+    localStorage.removeItem(DISMISS_KEY);
+  } catch {
+    /* storage unavailable */
+  }
+}

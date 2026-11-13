@@ -126,10 +126,14 @@
     "notNow": "Not now",
     "ios": {
       "title": "Install to get notifications",
-      "step1": "Tap the Share button in Safari.",
-      "step2": "Choose \"Add to Home Screen\".",
+      "step1": "Tap the Share button.",
+      "step2": "Then tap \"Add to Home Screen\".",
       "step3": "Open Meen Fina from your home screen and turn on notifications.",
       "gotIt": "Got it"
-    }
+    },
+    "settingsTitle": "Notifications",
+    "on": "On",
+    "blocked": "Blocked — allow notifications in your browser settings",
+    "failed": "Couldn't turn on notifications. Try again."
   }
 }

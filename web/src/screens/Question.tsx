@@ -130,7 +130,6 @@ export function Question() {
           ) : (
             <p className="card">{t('question.notEligible')}</p>
           )}
-          {askPush ? <PushPrompt uid={user.uid} onDone={() => setAskPush(false)} /> : null}
           <p className="muted" aria-live="polite">
             {t('group.voted', { voted: votedCount, total: question.eligibleUids.length })}
           </p>
@@ -180,6 +179,8 @@ export function Question() {
       ) : (
         <p className="card">{t('question.expired')}</p>
       )}
+
+      {askPush ? <PushPrompt uid={user.uid} onDone={() => setAskPush(false)} /> : null}
 
       {error ? (
         <p role="alert" className="error">

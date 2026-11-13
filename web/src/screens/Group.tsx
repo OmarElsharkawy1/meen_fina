@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import { MIN_MEMBERS_TO_ASK } from '@shared/constants';
@@ -49,6 +49,8 @@ export function Group() {
   const { group, loading: groupLoading } = useGroup(user ? groupId : undefined);
   const { questions, loading: qLoading } = useQuestions(group ? groupId : undefined);
   const [askPush, setAskPush] = useState(peekAskPush);
+  // Consume the one-shot flag as soon as it has been read.
+  useEffect(() => clearAskPush(), []);
 
   if (authLoading || (user && groupLoading)) {
     return (

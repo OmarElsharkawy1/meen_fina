@@ -60,14 +60,24 @@ self.addEventListener('message', (event) => {
 // Initializing messaging lets the FCM SDK display payloads that carry a `notification`.
 // Must run synchronously at SW start so its push listener is registered in time.
 const env = import.meta.env;
-if (env.VITE_FB_API_KEY && env.VITE_FB_PROJECT_ID && env.VITE_FB_APP_ID && env.VITE_USE_EMULATORS !== '1') {
-  const app = initializeApp({
-    apiKey: env.VITE_FB_API_KEY,
-    authDomain: env.VITE_FB_AUTH_DOMAIN,
-    projectId: env.VITE_FB_PROJECT_ID,
-    storageBucket: env.VITE_FB_STORAGE_BUCKET,
-    messagingSenderId: env.VITE_FB_MESSAGING_SENDER_ID,
-    appId: env.VITE_FB_APP_ID,
-  });
-  getMessaging(app);
+if (
+  env.VITE_FB_API_KEY &&
+  env.VITE_FB_PROJECT_ID &&
+  env.VITE_FB_APP_ID &&
+  env.VITE_FB_MESSAGING_SENDER_ID &&
+  env.VITE_USE_EMULATORS !== '1'
+) {
+  try {
+    const app = initializeApp({
+      apiKey: env.VITE_FB_API_KEY,
+      authDomain: env.VITE_FB_AUTH_DOMAIN,
+      projectId: env.VITE_FB_PROJECT_ID,
+      storageBucket: env.VITE_FB_STORAGE_BUCKET,
+      messagingSenderId: env.VITE_FB_MESSAGING_SENDER_ID,
+      appId: env.VITE_FB_APP_ID,
+    });
+    getMessaging(app);
+  } catch (err) {
+    console.error('messaging init failed', err);
+  }
 }
