@@ -21,7 +21,7 @@
     "unauthenticated": "Please sign in first.",
     "invalid-input": "That doesn't look right. Check and try again.",
     "not-found": "We couldn't find that.",
-    "code-inactive": "This invite code is turned off.",
+    "code-inactive": "This code is no longer active",
     "banned": "You can't join this group.",
     "group-full": "This group is full.",
     "not-member": "You're not a member of this group.",
@@ -49,5 +49,22 @@
     "language": "Language",
     "english": "English",
     "arabic": "العربية"
+  },
+  "home": {
+    "empty": "No groups yet. Create one or join with a code.",
+    "create": "Create group",
+    "join": "Join with code",
+    "members_one": "{{count}} member",
+    "members_other": "{{count}} members"
+  },
+  "create": {
+    "nameLabel": "Group name",
+    "namePlaceholder": "e.g. The Squad",
+    "submit": "Create group"
+  },
+  "join": {
+    "codeLabel": "Invite code",
+    "continue": "Continue",
+    "join": "Join group"
   }
 }

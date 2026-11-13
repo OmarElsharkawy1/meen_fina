@@ -21,7 +21,7 @@
     "unauthenticated": "سجّل الدخول الأول.",
     "invalid-input": "المدخلات مش مظبوطة. راجعها وحاول تاني.",
     "not-found": "مش لاقيين ده.",
-    "code-inactive": "كود الدعوة ده متوقف.",
+    "code-inactive": "الكود ده مبقاش شغال",
     "banned": "مينفعش تنضم للمجموعة دي.",
     "group-full": "المجموعة دي مكتملة.",
     "not-member": "إنت مش عضو في المجموعة دي.",
@@ -49,5 +49,22 @@
     "language": "اللغة",
     "english": "English",
     "arabic": "العربية"
+  },
+  "home": {
+    "empty": "لسه مفيش مجموعات. اعمل واحدة أو ادخل بكود.",
+    "create": "إنشاء مجموعة",
+    "join": "الانضمام بكود",
+    "members_one": "عضو واحد",
+    "members_other": "{{count}} عضو"
+  },
+  "create": {
+    "nameLabel": "اسم المجموعة",
+    "namePlaceholder": "مثلاً: الشلة",
+    "submit": "إنشاء المجموعة"
+  },
+  "join": {
+    "codeLabel": "كود الدعوة",
+    "continue": "متابعة",
+    "join": "انضم للمجموعة"
   }
 }
