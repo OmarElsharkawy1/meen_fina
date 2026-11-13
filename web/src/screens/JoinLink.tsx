@@ -7,6 +7,7 @@ import { useAuth } from '../auth/AuthProvider';
 import { Screen } from '../components/Screen';
 import { errorKey } from '../lib/errors';
 import { clearPendingJoin, setPendingJoin } from '../lib/pendingJoin';
+import { markAskPush } from '../push/pushFlag';
 
 export function JoinLink() {
   const { t } = useTranslation();
@@ -63,6 +64,7 @@ export function JoinLink() {
     try {
       const { groupId } = await api.joinGroup({ code });
       clearPendingJoin();
+      markAskPush(); // Group screen shows the push prompt once
       navigate(`/g/${groupId}`, { replace: true });
     } catch (err) {
       setError(t(errorKey(reasonOf(err))));

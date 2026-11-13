@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { MIN_VOTES_TO_REVEAL } from '@shared/constants';
 import { api, reasonOf } from '../api';
 import { useAuth } from '../auth/AuthProvider';
+import { SignInButton } from '../auth/SignInButton';
 import { Avatar } from '../components/Avatar';
 import { Leaderboard } from '../components/Leaderboard';
 import { MemberGrid } from '../components/MemberGrid';
@@ -12,6 +13,7 @@ import { WinnersCard } from '../components/WinnersCard';
 import { useGroup } from '../data/useGroup';
 import { useQuestion } from '../data/useQuestions';
 import { errorKey } from '../lib/errors';
+import { PushPrompt } from '../push/PushPrompt';
 
 const CONFETTI = ['🎉', '✨', '🎊', '⭐', '🎉', '✨', '🎊', '⭐'];
 
@@ -28,20 +30,27 @@ export function Question() {
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
-  const prevStatus = useRef<string | null>(null);
+  const [askPush, setAskPush] = useState(false);
+  const prevStatus = useRef<{ id: string; status: string | null } | null>(null);
   const back = `/g/${groupId}`;
   const status = question?.status ?? null;
 
-  // Celebrate when a question we were watching flips open -> revealed.
+  // A different question starts with a clean local pick.
+  useEffect(() => {
+    setPick(null);
+    setAskPush(false);
+  }, [questionId]);
+
+  // Celebrate when a question we were watching flips open -> revealed (<= 1s total).
   useEffect(() => {
     const prev = prevStatus.current;
-    prevStatus.current = status;
-    if (prev === 'open' && status === 'revealed') {
+    prevStatus.current = { id: questionId, status };
+    if (prev?.id === questionId && prev.status === 'open' && status === 'revealed') {
       setCelebrate(true);
-      const id = window.setTimeout(() => setCelebrate(false), 1100);
+      const id = window.setTimeout(() => setCelebrate(false), 1000);
       return () => window.clearTimeout(id);
     }
-  }, [status]);
+  }, [questionId, status]);
 
   async function run(action: () => Promise<void>) {
     if (busy) return;
@@ -66,11 +75,19 @@ export function Question() {
       </Screen>
     );
   }
-  if (!user || !question) {
+  if (!user) {
+    return (
+      <Screen back={back}>
+        <p className="muted">{t('auth.signInRequired')}</p>
+        <SignInButton />
+      </Screen>
+    );
+  }
+  if (!question) {
     return (
       <Screen back={back}>
         <p role="alert" className="error">
-          {t(user ? 'errors.not-found' : 'auth.signInRequired')}
+          {t('errors.not-found')}
         </p>
       </Screen>
     );
@@ -105,6 +122,7 @@ export function Question() {
                   void run(async () => {
                     await api.castVote({ groupId, questionId, targetUid: target });
                     setPick(target);
+                    if (!hasVoted) setAskPush(true);
                   })
                 }
               />
@@ -112,6 +130,7 @@ export function Question() {
           ) : (
             <p className="card">{t('question.notEligible')}</p>
           )}
+          {askPush ? <PushPrompt uid={user.uid} onDone={() => setAskPush(false)} /> : null}
           <p className="muted" aria-live="polite">
             {t('group.voted', { voted: votedCount, total: question.eligibleUids.length })}
           </p>

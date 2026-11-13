@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import { MIN_MEMBERS_TO_ASK } from '@shared/constants';
@@ -7,6 +8,8 @@ import { Screen } from '../components/Screen';
 import { useGroup } from '../data/useGroup';
 import { useQuestions, type QuestionWithId } from '../data/useQuestions';
 import { rankLeaderboard } from '../lib/leaderboard';
+import { PushPrompt } from '../push/PushPrompt';
+import { clearAskPush, peekAskPush } from '../push/pushFlag';
 
 function closedAtMs(q: QuestionWithId): number {
   return (q.closedAt ?? q.createdAt)?.toMillis() ?? 0;
@@ -45,6 +48,7 @@ export function Group() {
   const { user, loading: authLoading } = useAuth();
   const { group, loading: groupLoading } = useGroup(user ? groupId : undefined);
   const { questions, loading: qLoading } = useQuestions(group ? groupId : undefined);
+  const [askPush, setAskPush] = useState(peekAskPush);
 
   if (authLoading || (user && groupLoading)) {
     return (
@@ -89,6 +93,15 @@ export function Group() {
           ⚙
         </Link>
       </div>
+      {askPush ? (
+        <PushPrompt
+          uid={user.uid}
+          onDone={() => {
+            clearAskPush();
+            setAskPush(false);
+          }}
+        />
+      ) : null}
       {canAsk ? (
         <Link to={`/g/${groupId}/ask`} className="btn btn-primary">
           {t('group.ask')}

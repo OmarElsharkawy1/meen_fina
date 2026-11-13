@@ -119,5 +119,17 @@
     "deleteConfirm": "Delete this question for everyone?",
     "votes_one": "{{count}} vote",
     "votes_other": "{{count}} votes"
+  },
+  "push": {
+    "prompt": "Get notified when friends ask or results drop?",
+    "turnOn": "Turn on",
+    "notNow": "Not now",
+    "ios": {
+      "title": "Install to get notifications",
+      "step1": "Tap the Share button in Safari.",
+      "step2": "Choose \"Add to Home Screen\".",
+      "step3": "Open Meen Fina from your home screen and turn on notifications.",
+      "gotIt": "Got it"
+    }
   }
 }

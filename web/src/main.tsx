@@ -6,6 +6,7 @@ import { ProfileLang } from './ProfileLang';
 import { AuthProvider } from './auth/AuthProvider';
 import './i18n';
 import { applyLang, detectLang, storedLang } from './lib/lang';
+import { PushRefresh } from './push/PushRefresh';
 import './styles/tokens.css';
 import './styles/base.css';
 
@@ -16,6 +17,7 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <AuthProvider>
         <ProfileLang />
+        <PushRefresh />
         <App />
       </AuthProvider>
     </BrowserRouter>
