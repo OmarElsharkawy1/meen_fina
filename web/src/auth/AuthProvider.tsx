@@ -46,12 +46,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true;
     // Completes a pending redirect sign-in; auth state itself arrives via onAuthStateChanged.
-    getRedirectResult(auth).catch(() => undefined);
+    getRedirectResult(auth).catch((e) => console.error('getRedirectResult failed', e));
     const unsub = onAuthStateChanged(auth, (u) => {
       if (!active) return;
       setUser(u);
       setLoading(false);
-      if (u) void ensureUserDoc(u).catch(() => undefined);
+      if (u) void ensureUserDoc(u).catch((e) => console.error('ensureUserDoc failed', e));
     });
     return () => {
       active = false;

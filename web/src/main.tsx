@@ -5,11 +5,11 @@ import { App } from './App';
 import { ProfileLang } from './ProfileLang';
 import { AuthProvider } from './auth/AuthProvider';
 import './i18n';
-import { applyLang, detectLang } from './lib/lang';
+import { applyLang, detectLang, storedLang } from './lib/lang';
 import './styles/tokens.css';
 import './styles/base.css';
 
-applyLang(detectLang(navigator.languages));
+applyLang(storedLang() ?? detectLang(navigator.languages));
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
