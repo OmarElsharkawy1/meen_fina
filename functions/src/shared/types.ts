@@ -79,3 +79,13 @@ export type CastVoteInput = { groupId: string; questionId: string; targetUid: st
 export type CastVoteOutput = { revealed: boolean };
 
 export type RevealQuestionInput = { groupId: string; questionId: string };
+
+export type LeaveGroupInput = { groupId: string };
+export type LeaveGroupOutput = { groupDeleted: boolean };
+
+export type KickMemberInput = { groupId: string; uid: string };
+export type UnbanMemberInput = { groupId: string; uid: string };
+export type SetCodeActiveInput = { groupId: string; active: boolean };
+export type RegenerateCodeInput = { groupId: string };
+export type RegenerateCodeOutput = { code: string };
+export type TransferAdminInput = { groupId: string; uid: string };

@@ -18,7 +18,7 @@ import type {
 } from '../shared/types';
 import { fail, getGroupOrFail, requireAuth, requireMember, type Ctx } from './ctx';
 
-function requireId(value: unknown): string {
+export function requireId(value: unknown): string {
   if (typeof value !== 'string' || value.length === 0 || value.includes('/')) {
     return fail('invalid-input', 'invalid-argument');
   }
