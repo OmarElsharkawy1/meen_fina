@@ -69,3 +69,13 @@ export type PreviewGroupOutput = {
 
 export type JoinGroupInput = { code: string };
 export type JoinGroupOutput = { groupId: string };
+
+export type AskQuestionInput = { groupId: string; text: string };
+export type AskQuestionOutput = { questionId: string };
+
+export type DeleteQuestionInput = { groupId: string; questionId: string };
+
+export type CastVoteInput = { groupId: string; questionId: string; targetUid: string };
+export type CastVoteOutput = { revealed: boolean };
+
+export type RevealQuestionInput = { groupId: string; questionId: string };
