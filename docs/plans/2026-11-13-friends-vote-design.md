@@ -104,7 +104,7 @@ It's used in two ways **[decided]**:
 - **Who can be picked.** The same set of members. **You can't pick yourself** **[my call]**.
 - **One vote per person per question.** You can change it until results are revealed **[my call]**.
 - **Late joiners [my call].** Someone who joins after a question was posted sees it, but can't vote and doesn't appear on its leaderboard. Eligibility is fixed when the question is posted.
-- **Members who are kicked or leave while a question is open [my call].** Their vote is removed, they're removed from that question's candidates, and the "x of y" count drops. A stranger who got in through a leaked code therefore leaves no trace. Questions that were already revealed keep their results unchanged.
+- **Members who are kicked or leave while a question is open [my call].** Their vote is removed, they're removed from that question's candidates, and the "x of y" count drops. Votes other people cast *for* them become void but those voters still count as "voted" — moving them back to "pending" would reveal who picked the person who left. If void votes leave fewer than 3 valid votes at reveal time, the question expires instead of revealing. A stranger who got in through a leaked code therefore leaves no trace. Questions that were already revealed keep their results unchanged.
 - **Before the reveal, everyone sees:**
   - a counter, e.g. "5/7 voted";
   - **whose vote is still missing**, shown as avatars, so friends can chase stragglers. This shows only *who* hasn't voted, never *for whom* anyone voted **[my call]**.
