@@ -47,8 +47,12 @@ describe('previewGroup', () => {
     expect((await previewGroup(ctxFor('alice'), { code })).alreadyMember).toBe(true);
   });
 
+  it('rejects malformed codes', async () => {
+    await expectReason(previewGroup(ctxFor(null), { code: 'AB/CDE' }), 'invalid-input');
+  });
+
   it('fails not-found, invalid and code-inactive', async () => {
-    await expectReason(previewGroup(ctxFor(null), { code: 'NOPE22' }), 'not-found');
+    await expectReason(previewGroup(ctxFor(null), { code: 'NAPE22' }), 'not-found');
     await expectReason(previewGroup(ctxFor(null), { code: 7 as unknown as string }), 'invalid-input');
     const { code } = await seedGroup({ codeActive: false });
     await expectReason(previewGroup(ctxFor(null), { code }), 'code-inactive');
@@ -65,15 +69,19 @@ describe('joinGroup', () => {
     expect(g.members.bob.name).toBe('Bob');
   });
 
+  it('rejects malformed codes', async () => {
+    await expectReason(joinGroup(ctxFor('bob'), { code: 'ABC' }), 'invalid-input');
+  });
+
   it('requires auth', async () => {
     const { code } = await seedGroup();
     await expectReason(joinGroup(ctxFor(null), { code }), 'unauthenticated');
   });
 
   it('fails code-inactive, not-found, group-full, banned', async () => {
-    const off = await seedGroup({ groupId: 'g1', code: 'OFF222', codeActive: false });
+    const off = await seedGroup({ groupId: 'g1', code: 'DFF222', codeActive: false });
     await expectReason(joinGroup(ctxFor('bob'), { code: off.code }), 'code-inactive');
-    await expectReason(joinGroup(ctxFor('bob'), { code: 'NOPE22' }), 'not-found');
+    await expectReason(joinGroup(ctxFor('bob'), { code: 'NAPE22' }), 'not-found');
 
     const full = await seedGroup({
       groupId: 'g2',

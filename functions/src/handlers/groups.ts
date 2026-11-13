@@ -1,6 +1,7 @@
 import { FieldValue } from 'firebase-admin/firestore';
+import { HttpsError } from 'firebase-functions/v2/https';
 import { generateCode } from '../core/codes';
-import { GROUP_NAME_MAX_LEN, MAX_MEMBERS } from '../shared/constants';
+import { CODE_ALPHABET, CODE_LENGTH, GROUP_NAME_MAX_LEN, MAX_MEMBERS } from '../shared/constants';
 import type {
   CodeDoc,
   CreateGroupInput,
@@ -18,7 +19,9 @@ const MAX_CODE_ATTEMPTS = 5;
 function normalizeCode(input: unknown): string {
   if (typeof input !== 'string') return fail('invalid-input', 'invalid-argument');
   const code = input.toUpperCase().trim();
-  if (!code) return fail('invalid-input', 'invalid-argument');
+  if (code.length !== CODE_LENGTH || [...code].some((c) => !CODE_ALPHABET.includes(c))) {
+    return fail('invalid-input', 'invalid-argument');
+  }
   return code;
 }
 
@@ -55,7 +58,7 @@ export async function createGroup(ctx: Ctx, input: CreateGroupInput): Promise<Cr
     });
     if (created) return { groupId: groupRef.id, code };
   }
-  return fail('not-allowed', 'resource-exhausted');
+  throw new HttpsError('internal', 'code-generation-exhausted');
 }
 
 export async function previewGroup(

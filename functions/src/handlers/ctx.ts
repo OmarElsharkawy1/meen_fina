@@ -1,9 +1,8 @@
-import {
-  getFirestore,
-  type DocumentReference,
-  type Firestore,
-  type Timestamp,
-  type Transaction,
+import type {
+  DocumentReference,
+  Firestore,
+  Timestamp,
+  Transaction,
 } from 'firebase-admin/firestore';
 import { HttpsError, type FunctionsErrorCode } from 'firebase-functions/v2/https';
 import type { ErrorReason } from '../shared/errors';
@@ -27,8 +26,12 @@ export function requireAuth(ctx: Ctx): string {
 
 export type LoadedGroup = { ref: DocumentReference; data: GroupDoc };
 
-export async function getGroupOrFail(tx: Transaction, groupId: string): Promise<LoadedGroup> {
-  const ref = getFirestore().doc(`groups/${groupId}`);
+export async function getGroupOrFail(
+  db: Firestore,
+  tx: Transaction,
+  groupId: string,
+): Promise<LoadedGroup> {
+  const ref = db.doc(`groups/${groupId}`);
   const snap = await tx.get(ref);
   if (!snap.exists) return fail('not-found', 'not-found');
   return { ref, data: snap.data() as GroupDoc };
