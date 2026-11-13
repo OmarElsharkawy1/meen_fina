@@ -30,6 +30,9 @@ const DEAD_TOKEN_CODES = new Set([
   'messaging/invalid-registration-token',
 ]);
 
+/** Only the most recent tokens are used; keeps multicast well under FCM's 500 limit. */
+const MAX_TOKENS_PER_USER = 10;
+
 export async function pushForQuestionChange(
   deps: NotifyDeps,
   groupId: string,
@@ -60,33 +63,42 @@ export async function pushForQuestionChange(
   const sentTo: string[] = [];
   await Promise.all(
     recipients.map(async (uid) => {
-      const userRef = deps.db.doc(`users/${uid}`);
-      const snap = await userRef.get();
-      if (!snap.exists) return;
-      // User docs are client-writable: validate shapes.
-      const u = snap.data() as Record<string, unknown>;
-      const tokens = u.fcmTokens;
-      if (!Array.isArray(tokens) || tokens.length === 0 || !tokens.every((t) => typeof t === 'string')) return;
-      const muted = Array.isArray(u.mutedGroupIds) ? u.mutedGroupIds : [];
-      if (muted.includes(groupId)) return;
-      const lang = u.lang === 'ar' ? 'ar' : 'en';
-      const { title, body } = notificationFor(kind, lang, groupName, after.text);
+      try {
+        const userRef = deps.db.doc(`users/${uid}`);
+        const snap = await userRef.get();
+        if (!snap.exists) return;
+        // User docs are client-writable: validate shapes.
+        const u = snap.data() as Record<string, unknown>;
+        const all = u.fcmTokens;
+        if (!Array.isArray(all) || all.length === 0 || !all.every((t) => typeof t === 'string')) return;
+        const muted = Array.isArray(u.mutedGroupIds) ? u.mutedGroupIds : [];
+        if (muted.includes(groupId)) return;
+        const tokens = (all as string[]).slice(-MAX_TOKENS_PER_USER);
+        const lang = u.lang === 'ar' ? 'ar' : 'en';
+        const { title, body } = notificationFor(kind, lang, groupName, after.text);
 
-      const result = await deps.send({
-        tokens: tokens as string[],
-        webpush: {
-          notification: { title, body, icon: '/icons/icon-192.png' },
-          fcmOptions: { link },
-        },
-        data: { groupId, questionId, link },
-      });
-      sentTo.push(uid);
+        const result = await deps.send({
+          tokens,
+          webpush: {
+            notification: { title, body, icon: '/icons/icon-192.png' },
+            fcmOptions: { link },
+          },
+          data: { groupId, questionId, link },
+        });
+        sentTo.push(uid);
 
-      const dead = (tokens as string[]).filter((_, i) => {
-        const code = result.responses[i]?.error?.code;
-        return !result.responses[i]?.success && code !== undefined && DEAD_TOKEN_CODES.has(code);
-      });
-      if (dead.length > 0) await userRef.update({ fcmTokens: FieldValue.arrayRemove(...dead) });
+        try {
+          const dead = tokens.filter((_, i) => {
+            const code = result.responses[i]?.error?.code;
+            return !result.responses[i]?.success && code !== undefined && DEAD_TOKEN_CODES.has(code);
+          });
+          if (dead.length > 0) await userRef.update({ fcmTokens: FieldValue.arrayRemove(...dead) });
+        } catch (err) {
+          console.error(`push token cleanup failed for ${uid}`, err);
+        }
+      } catch (err) {
+        console.error(`push failed for ${uid}`, err);
+      }
     }),
   );
   return { sentTo: sentTo.sort() };

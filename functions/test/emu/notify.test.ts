@@ -127,6 +127,39 @@ describe('pushForQuestionChange', () => {
     expect(r.sentTo).toContain('b');
   });
 
+  it('one failing send does not lose other users', async () => {
+    const sent: string[] = [];
+    const deps = {
+      db: db(),
+      appOrigin: ORIGIN,
+      send: async (m: MulticastLike): Promise<SendResult> => {
+        if (m.tokens[0] === 'tok-b') throw new Error('boom');
+        sent.push(m.tokens[0]!);
+        return { responses: m.tokens.map(() => ({ success: true })) };
+      },
+    };
+    const r = await pushForQuestionChange(deps, 'g1', 'q1', null, q('open'));
+    expect(r.sentTo).toEqual(['c']);
+    expect(sent).toEqual(['tok-c']);
+  });
+
+  it('uses only the last 10 tokens', async () => {
+    const many = Array.from({ length: 600 }, (_, i) => `t${i}`);
+    await seedUser('c', { fcmTokens: many });
+    const { sent, deps } = fake();
+    await pushForQuestionChange(deps, 'g1', 'q1', null, q('open'));
+    const m = sent.find((x) => x.tokens[0]?.startsWith('t'))!;
+    expect(m.tokens).toEqual(many.slice(-10));
+  });
+
+  it('reveal sends Arabic title to Arabic recipient', async () => {
+    await seedUser('b', { lang: 'ar' });
+    const { sent, deps } = fake();
+    await pushForQuestionChange(deps, 'g1', 'q1', q('open'), q('revealed'));
+    const m = sent.find((x) => x.tokens[0] === 'tok-b')!;
+    expect(m.webpush.notification.title).toBe('Dahab: النتيجة ظهرت!');
+  });
+
   it('missing group sends nothing', async () => {
     const { sent, deps } = fake();
     const r = await pushForQuestionChange(deps, 'gone', 'q1', null, q('open'));
