@@ -5,6 +5,7 @@ Manual, one-time setup. Replace `<id>` with your Firebase project id and `<proje
 1. **Create the project.** In the Firebase console create a project named `meen-fina` (use the suggested id if `meen-fina` is taken). Note the id as `<id>`.
 2. **Upgrade to Blaze.** Cloud Functions 2nd gen requires the pay-as-you-go plan. Attach a billing account. Expected cost for friend-group use is near zero; the kill switch in steps 8-10 and 13 caps it.
 3. **Authentication.** Build, Authentication, Get started, Sign-in method, enable **Google**. Then Settings, Authorized domains, add `<id>.web.app` (and `<id>.firebaseapp.com` is there by default).
+   Also allow the redirect sign-in: Google Cloud console, APIs & Services, Credentials, open **Web client (auto created by Google Service)**. Under **Authorized JavaScript origins** add `https://<id>.web.app`, and under **Authorized redirect URIs** add `https://<id>.web.app/__/auth/handler`. Save (it can take a few minutes to apply). Without this, sign-in fails with `redirect_uri_mismatch`.
 4. **Firestore.** Build, Firestore Database, Create database. Location `europe-west1`, start in **production mode**. Rules are deployed from the repo later.
 5. **Register the web app.** Project settings, Your apps, Add app, Web. Copy the config into `web/.env.local`:
    ```
@@ -22,8 +23,13 @@ Manual, one-time setup. Replace `<id>` with your Firebase project id and `<proje
 10. **Dedicated kill-switch service account.**
     1. Google Cloud console, IAM & Admin, Service accounts, Create: id `billing-killswitch` (email `billing-killswitch@<id>.iam.gserviceaccount.com`). No project roles needed.
     2. Billing, Account management (select the billing account), Permissions, Add principal: that service account, role **Billing Account Administrator**. Without this the kill switch cannot disable billing.
-    3. Create `functions/.env.<id>` containing `KILLSWITCH_SA=billing-killswitch@<id>.iam.gserviceaccount.com`. This file is gitignored and lives only on the machine you deploy from; keep it there.
-11. **Deploy.** From the repo root: `npm run build`, then `firebase deploy --only functions,firestore:rules,firestore:indexes`.
+    3. The service account may also need `roles/logging.logWriter` (project IAM) so the function's log lines appear. If the trigger fails with permission errors in the logs, also grant it `roles/eventarc.eventReceiver` and `roles/run.invoker`.
+    4. Create `functions/.env.<id>` containing `KILLSWITCH_SA=billing-killswitch@<id>.iam.gserviceaccount.com`. This file is gitignored and lives only on the machine you deploy from; keep it there.
+11. **Deploy.** Requires firebase-tools 14 or newer (`npm i -g firebase-tools@latest`, check with `firebase --version`). From the repo root:
+    1. Make sure `web/.env.local` is fully filled (step 5); Vite bakes these values into the build.
+    2. `firebase login`, then `firebase use --add <id>` and give it the alias `default`.
+    3. `npm run build` (builds functions and web).
+    4. `firebase deploy --only firestore,functions,hosting`.
 12. **Cleanup policy for build images.** After the first deploy, run:
     ```
     firebase functions:artifacts:setpolicy --days 1
@@ -33,7 +39,7 @@ Manual, one-time setup. Replace `<id>` with your Firebase project id and `<proje
     ```
     {"costAmount": 0.5, "budgetAmount": 1}
     ```
-    Check the `budgetKillSwitch` logs: it should report `under-budget` and change nothing. **Do NOT publish `costAmount: 1.5`** unless you intend to: that really disables billing on the project (see below to undo).
+    Check the `budgetKillSwitch` logs: it must show the `under-budget` log line and change nothing. If the line is missing, revisit the roles in step 10. **Do NOT publish `costAmount: 1.5`** unless you intend to: that really disables billing on the project (see below to undo).
 
 ## Warning
 
