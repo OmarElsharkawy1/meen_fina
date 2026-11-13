@@ -49,7 +49,7 @@ describe('expireOldQuestions', () => {
 
     const res = await expireOldQuestions(db(), Timestamp.now());
 
-    expect(res).toEqual({ revealed: 1, expired: 1 });
+    expect(res).toEqual({ revealed: 1, expired: 1, failed: 0 });
     const rev = await getQ('rev');
     expect(rev.status).toBe('revealed');
     expect(rev.results).not.toBeNull();
@@ -65,7 +65,7 @@ describe('expireOldQuestions', () => {
     // 'x' was removed from eligibleUids; its vote is void.
     await seedQuestion('q', 49, [['a', 'b'], ['b', 'c'], ['x', 'a']]);
     const res = await expireOldQuestions(db(), Timestamp.now());
-    expect(res).toEqual({ revealed: 0, expired: 1 });
+    expect(res).toEqual({ revealed: 0, expired: 1, failed: 0 });
     expect((await getQ('q')).status).toBe('expired');
   });
 
@@ -74,7 +74,7 @@ describe('expireOldQuestions', () => {
     await seedQuestion('old', 60, [['a', 'b'], ['b', 'c'], ['c', 'a']], { status: 'revealed' });
     const before = await getQ('old');
     const res = await expireOldQuestions(db(), Timestamp.now());
-    expect(res).toEqual({ revealed: 0, expired: 0 });
+    expect(res).toEqual({ revealed: 0, expired: 0, failed: 0 });
     expect(await getQ('old')).toEqual(before);
   });
 
@@ -91,7 +91,27 @@ describe('expireOldQuestions', () => {
     expect((await getQ('q')).status).toBe('expired');
   });
 
-  it('uses the AUTO_REVEAL_MS cutoff', () => {
-    expect(AUTO_REVEAL_MS).toBe(48 * HOUR);
+  it('processes a question created exactly 48h before now', async () => {
+    await seedGroup({ adminUid: 'a', memberUids: FIVE });
+    const now = Timestamp.fromMillis(Date.now());
+    await seedQuestion('edge', 0, [['a', 'b'], ['b', 'c'], ['c', 'a']]);
+    await db()
+      .doc('groups/g1/questions/edge')
+      .update({ createdAt: Timestamp.fromMillis(now.toMillis() - AUTO_REVEAL_MS) });
+    const res = await expireOldQuestions(db(), now);
+    expect(res).toEqual({ revealed: 1, expired: 0, failed: 0 });
+    expect((await getQ('edge')).status).toBe('revealed');
+  });
+
+  it('isolates a malformed question: the valid one is still processed', async () => {
+    await seedGroup({ adminUid: 'a', memberUids: FIVE });
+    await seedQuestion('good', 49, [['a', 'b'], ['b', 'c'], ['c', 'a']]);
+    await seedQuestion('bad', 49, []);
+    // Non-iterable eligibleUids makes countValidVotes throw.
+    await db().doc('groups/g1/questions/bad').update({ eligibleUids: 5 });
+    const res = await expireOldQuestions(db(), Timestamp.now());
+    expect(res).toEqual({ revealed: 1, expired: 0, failed: 1 });
+    expect((await getQ('good')).status).toBe('revealed');
+    expect((await getQ('bad')).status).toBe('open');
   });
 });

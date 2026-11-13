@@ -29,7 +29,7 @@ export async function expireQuestionIfOpen(
 export async function expireOldQuestions(
   db: Firestore,
   now: Timestamp,
-): Promise<{ revealed: number; expired: number }> {
+): Promise<{ revealed: number; expired: number; failed: number }> {
   const cutoff = Timestamp.fromMillis(now.toMillis() - AUTO_REVEAL_MS);
   const snap = await db
     .collectionGroup('questions')
@@ -38,10 +38,19 @@ export async function expireOldQuestions(
     .get();
   let revealed = 0;
   let expired = 0;
+  let failed = 0;
   for (const doc of snap.docs) {
-    const outcome = await expireQuestionIfOpen(db, doc.ref, now);
-    if (outcome === 'reveal') revealed++;
-    else if (outcome === 'expire') expired++;
+    try {
+      const outcome = await expireQuestionIfOpen(db, doc.ref, now);
+      if (outcome === 'reveal') revealed++;
+      else if (outcome === 'expire') expired++;
+    } catch (err) {
+      failed++;
+      console.error(
+        `expireOldQuestions: failed group=${doc.ref.parent.parent?.id ?? '?'} question=${doc.id}`,
+        err,
+      );
+    }
   }
-  return { revealed, expired };
+  return { revealed, expired, failed };
 }
