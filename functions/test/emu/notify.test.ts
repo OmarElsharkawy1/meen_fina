@@ -148,7 +148,7 @@ describe('pushForQuestionChange', () => {
     await seedUser('c', { fcmTokens: many });
     const { sent, deps } = fake();
     await pushForQuestionChange(deps, 'g1', 'q1', null, q('open'));
-    const m = sent.find((x) => x.tokens[0]?.startsWith('t'))!;
+    const m = sent.find((x) => x.tokens[0]?.startsWith('t5'))!;
     expect(m.tokens).toEqual(many.slice(-10));
   });
 
