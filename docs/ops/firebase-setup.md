@@ -3,7 +3,7 @@
 Manual, one-time setup. Replace `<id>` with your Firebase project id and `<project-number>` with its numeric project number (Firebase console, Project settings, General).
 
 1. **Create the project.** In the Firebase console create a project named `meen-fina` (use the suggested id if `meen-fina` is taken). Note the id as `<id>`.
-2. **Upgrade to Blaze.** Cloud Functions 2nd gen requires the pay-as-you-go plan. Attach a billing account. Expected cost for friend-group use is near zero; the kill switch in step 11 caps it.
+2. **Upgrade to Blaze.** Cloud Functions 2nd gen requires the pay-as-you-go plan. Attach a billing account. Expected cost for friend-group use is near zero; the kill switch in steps 8-10 and 13 caps it.
 3. **Authentication.** Build, Authentication, Get started, Sign-in method, enable **Google**. Then Settings, Authorized domains, add `<id>.web.app` (and `<id>.firebaseapp.com` is there by default).
 4. **Firestore.** Build, Firestore Database, Create database. Location `europe-west1`, start in **production mode**. Rules are deployed from the repo later.
 5. **Register the web app.** Project settings, Your apps, Add app, Web. Copy the config into `web/.env.local`:
@@ -16,21 +16,24 @@ Manual, one-time setup. Replace `<id>` with your Firebase project id and `<proje
    VITE_FB_VAPID_KEY=...      # from step 6
    ```
 6. **Web Push key.** Project settings, Cloud Messaging, Web configuration, **Generate key pair**. Paste the public key as `VITE_FB_VAPID_KEY`.
-7. **Custom domain only:** if the app is served from a domain other than `<id>.web.app`, set `APP_ORIGIN=https://your.domain` as an environment variable for the functions (e.g. a `functions/.env.<id>` file) so notification links point to it. Skip otherwise.
+7. **Custom domain only:** if the app is served from a domain other than `<id>.web.app`, add `APP_ORIGIN=https://your.domain` to `functions/.env.<id>` so notification links point to it. Skip otherwise.
 8. **Enable the Cloud Billing API.** Google Cloud console for the project, APIs & Services, Library, search "Cloud Billing API", Enable. The kill switch uses it.
-9. **Create the budget.** Google Cloud console, Billing, Budgets & alerts, Create budget. Scope: this project. Amount: **$1**. On the last page tick **Connect a Pub/Sub topic to this budget** and create/select the topic `billing-budget` (same project). The budget publishes messages with `costAmount` and `budgetAmount`.
-10. **Grant the functions service account billing rights.** Functions run as `<project-number>-compute@developer.gserviceaccount.com` (2nd gen default). Google Cloud console, Billing, Account management (select the billing account), Permissions, Add principal: that service account, role **Billing Account Administrator**. Without this the kill switch cannot disable billing.
-11. **Cleanup policy for build images.** After the first deploy, run:
+9. **Create the budget.** Google Cloud console, Billing, Budgets & alerts, Create budget. Scope: this project. Amount: **$1 (or the equivalent in your billing account's currency)**. On the last page tick **Connect a Pub/Sub topic to this budget** and create/select the topic `billing-budget` (same project). The budget publishes messages with `costAmount` and `budgetAmount`.
+10. **Dedicated kill-switch service account.**
+    1. Google Cloud console, IAM & Admin, Service accounts, Create: id `billing-killswitch` (email `billing-killswitch@<id>.iam.gserviceaccount.com`). No project roles needed.
+    2. Billing, Account management (select the billing account), Permissions, Add principal: that service account, role **Billing Account Administrator**. Without this the kill switch cannot disable billing.
+    3. Create `functions/.env.<id>` containing `KILLSWITCH_SA=billing-killswitch@<id>.iam.gserviceaccount.com`. This file is gitignored and lives only on the machine you deploy from; keep it there.
+11. **Deploy.** From the repo root: `npm run build`, then `firebase deploy --only functions,firestore:rules,firestore:indexes`.
+12. **Cleanup policy for build images.** After the first deploy, run:
     ```
     firebase functions:artifacts:setpolicy --days 1
     ```
     This stops old container images from accruing storage cost.
-12. **Deploy.** From the repo root: `npm run build`, then `firebase deploy --only functions,firestore:rules,firestore:indexes`.
 13. **Test the kill switch safely (0.5 message only).** Pub/Sub, Topics, `billing-budget`, Messages, Publish message, body:
     ```
     {"costAmount": 0.5, "budgetAmount": 1}
     ```
-    Check the `budgetKillSwitch` logs: it should report `under-budget` and change nothing. **Do NOT publish `costAmount: 1.5`** unless you intend to: that really disables billing on the project (step below to undo).
+    Check the `budgetKillSwitch` logs: it should report `under-budget` and change nothing. **Do NOT publish `costAmount: 1.5`** unless you intend to: that really disables billing on the project (see below to undo).
 
 ## Warning
 
@@ -38,7 +41,6 @@ When the kill switch fires, billing is **detached from the project**. All backen
 
 ## Re-enabling billing after the kill switch fires
 
-1. Google Cloud console, Billing, **Account management**, find the project (or Billing, My projects).
-2. Open the project's menu, **Change billing**, pick your billing account, **Set account**.
-3. Check the cause of the spend (Billing reports) before re-enabling. Budget notifications repeat during the month, so cost above $1 will trigger the switch again; raise the budget amount first if you accept the higher spend.
-4. Some functions may need a redeploy after a long outage: `firebase deploy --only functions`.
+1. Firebase console, project, **Usage and billing**, **Modify plan**, choose Blaze and select your billing account. (Alternative: Google Cloud console, Billing, **My projects**, project menu, **Change billing**, pick the account, **Set account**.)
+2. Check the cause of the spend (Billing reports) before re-enabling. Budget notifications repeat during the month, so cost above the budget will trigger the switch again; raise the budget amount first if you accept the higher spend.
+3. Some functions may need a redeploy after a long outage: `firebase deploy --only functions`.

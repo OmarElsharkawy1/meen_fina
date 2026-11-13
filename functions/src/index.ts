@@ -3,6 +3,7 @@ import { initializeApp } from 'firebase-admin/app';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
 import { auth, cloudbilling } from '@googleapis/cloudbilling';
+import { defineString } from 'firebase-functions/params';
 import { setGlobalOptions } from 'firebase-functions/v2';
 import { onCall } from 'firebase-functions/v2/https';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
@@ -62,7 +63,11 @@ export const notifyQuestions = onDocumentWritten(
   },
 );
 
-export const budgetKillSwitch = onMessagePublished('billing-budget', async (event) => {
+const killswitchSa = defineString('KILLSWITCH_SA');
+
+export const budgetKillSwitch = onMessagePublished(
+  { topic: 'billing-budget', serviceAccount: killswitchSa },
+  async (event) => {
   const payload = parseBudgetPayload(event.data.message.data);
   if (!payload) {
     logger.error('budgetKillSwitch: unparseable payload');

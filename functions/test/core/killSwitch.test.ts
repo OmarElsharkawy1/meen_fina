@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { handleBudgetMessage } from '../../src/billing/killSwitch';
+import { handleBudgetMessage, parseBudgetPayload } from '../../src/billing/killSwitch';
 
 const mk = (enabled: boolean) => ({
   projectId: 'p',
@@ -22,5 +22,26 @@ describe('handleBudgetMessage', () => {
     const d = mk(false);
     expect(await handleBudgetMessage({ costAmount: 5, budgetAmount: 1 }, d)).toBe('already-disabled');
     expect(d.disableBilling).not.toHaveBeenCalled();
+  });
+});
+
+const b64 = (v: unknown) => Buffer.from(typeof v === 'string' ? v : JSON.stringify(v)).toString('base64');
+
+describe('parseBudgetPayload', () => {
+  it('returns null for missing, bad base64 or bad JSON', () => {
+    expect(parseBudgetPayload(undefined)).toBeNull();
+    expect(parseBudgetPayload('!!!')).toBeNull();
+    expect(parseBudgetPayload(b64('not json'))).toBeNull();
+  });
+  it('returns null for string amounts', () => {
+    expect(parseBudgetPayload(b64({ costAmount: '2', budgetAmount: '1' }))).toBeNull();
+  });
+  it('returns null for non-finite amounts', () => {
+    expect(parseBudgetPayload(b64('{"costAmount":1e999,"budgetAmount":1}'))).toBeNull();
+  });
+  it('parses valid message with extra fields', () => {
+    expect(
+      parseBudgetPayload(b64({ costAmount: 2, budgetAmount: 1, budgetDisplayName: 'x', currencyCode: 'USD' })),
+    ).toEqual({ costAmount: 2, budgetAmount: 1 });
   });
 });

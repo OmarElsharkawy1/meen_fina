@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 process.env.GCLOUD_PROJECT = 'demo-meen-fina';
+process.env.KILLSWITCH_SA = 'billing-killswitch@demo-meen-fina.iam.gserviceaccount.com';
 
 describe('index exports', () => {
   it('exports every function', async () => {
