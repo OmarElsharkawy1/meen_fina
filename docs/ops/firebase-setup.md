@@ -7,7 +7,7 @@ Manual, one-time setup. Replace `<id>` with your Firebase project id and `<proje
 3. **Authentication.** Build, Authentication, Get started, Sign-in method, enable **Google**. Then Settings, Authorized domains, add `<id>.web.app` (and `<id>.firebaseapp.com` is there by default).
    Also allow the redirect sign-in: Google Cloud console, APIs & Services, Credentials, open **Web client (auto created by Google Service)**. Under **Authorized JavaScript origins** add `https://<id>.web.app`, and under **Authorized redirect URIs** add `https://<id>.web.app/__/auth/handler`. Save (it can take a few minutes to apply). Without this, sign-in fails with `redirect_uri_mismatch`.
 4. **Firestore.** Build, Firestore Database, Create database. Location `europe-west1`, start in **production mode**. Rules are deployed from the repo later.
-5. **Register the web app.** Project settings, Your apps, Add app, Web. Copy the config into `web/.env.local`:
+5. **Register the web app.** Project settings, Your apps, Add app, Web. Copy the config into `web/.env.production.local` (production builds only, so local emulator dev is unaffected):
    ```
    VITE_FB_API_KEY=...
    VITE_FB_AUTH_DOMAIN=<id>.web.app
@@ -23,16 +23,22 @@ Manual, one-time setup. Replace `<id>` with your Firebase project id and `<proje
 10. **Dedicated kill-switch service account.**
     1. Google Cloud console, IAM & Admin, Service accounts, Create: id `billing-killswitch` (email `billing-killswitch@<id>.iam.gserviceaccount.com`). No project roles needed.
     2. Billing, Account management (select the billing account), Permissions, Add principal: that service account, role **Billing Account Administrator**. Without this the kill switch cannot disable billing.
-    3. The service account may also need `roles/logging.logWriter` (project IAM) so the function's log lines appear. If the trigger fails with permission errors in the logs, also grant it `roles/eventarc.eventReceiver` and `roles/run.invoker`.
+    3. Project IAM roles for the service account: **Logs Writer**, **Service Usage Consumer**, **Eventarc Event Receiver** and **Cloud Run Invoker**. Without them the `budgetKillSwitch` deploy fails with a 403 on its trigger.
     4. Create `functions/.env.<id>` containing `KILLSWITCH_SA=billing-killswitch@<id>.iam.gserviceaccount.com`. This file is gitignored and lives only on the machine you deploy from; keep it there.
 11. **Deploy.** Requires firebase-tools 14 or newer (`npm i -g firebase-tools@latest`, check with `firebase --version`). From the repo root:
-    1. Make sure `web/.env.local` is fully filled (step 5); Vite bakes these values into the build.
+    1. Make sure `web/.env.production.local` is fully filled (step 5); Vite bakes these values into the build.
     2. `firebase login`, then `firebase use --add <id>` and give it the alias `default`.
     3. `npm run build` (builds functions and web).
     4. `firebase deploy --only firestore,functions,hosting`.
-12. **Cleanup policy for build images.** After the first deploy, run:
+
+    The standalone `firebase` binary (bundled Node 20) fails the functions predeploy with `npm ERR! Cannot read properties of undefined (reading 'stdin')`. Use the npm package instead, which runs on your system Node:
     ```
-    firebase functions:artifacts:setpolicy --days 1
+    npm exec --yes --package=firebase-tools@14.8.0 -- firebase deploy --only firestore,functions,hosting
+    ```
+    On the very first deploy, event-triggered functions (`notifyQuestions`, `budgetKillSwitch`) can fail while Eventarc permissions propagate. Wait a few minutes and redeploy just those, e.g. `--only functions:notifyQuestions`. `budgetKillSwitch` also needs the step 10.3 roles on the kill-switch service account.
+12. **Cleanup policy for build images.** After the first deploy, run (the location must match the functions region):
+    ```
+    firebase functions:artifacts:setpolicy --location europe-west1 --days 1 --force
     ```
     This stops old container images from accruing storage cost.
 13. **Test the kill switch safely (0.5 message only).** Pub/Sub, Topics, `billing-budget`, Messages, Publish message, body:
