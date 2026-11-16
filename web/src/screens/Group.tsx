@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { MIN_MEMBERS_TO_ASK } from '@shared/constants';
 import { SignInButton } from '../auth/SignInButton';
 import { useAuth } from '../auth/AuthProvider';
+import { SettingsIcon } from '../components/icons';
 import { Screen } from '../components/Screen';
 import { useGroup } from '../data/useGroup';
 import { useQuestions, type QuestionWithId } from '../data/useQuestions';
@@ -92,7 +93,7 @@ export function Group() {
       <div className="title-row">
         <h1 dir="auto">{group.name}</h1>
         <Link to={`/g/${groupId}/settings`} className="icon-link" aria-label={t('screens.groupSettings')}>
-          ⚙
+          <SettingsIcon />
         </Link>
       </div>
       {askPush ? (

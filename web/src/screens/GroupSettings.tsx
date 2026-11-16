@@ -103,7 +103,7 @@ export function GroupSettings() {
 
   function confirmBlock(question: string, label: string, onYes: () => void) {
     return (
-      <div className="stack">
+      <div className="stack pop-in">
         <p>{question}</p>
         <button type="button" className="btn btn-primary" disabled={busy} onClick={onYes}>
           {label}
@@ -202,7 +202,7 @@ export function GroupSettings() {
                       </button>
                       <button
                         type="button"
-                        className="btn btn-secondary"
+                        className="btn btn-danger"
                         onClick={() => setConfirm({ kind: 'kick', uid: m })}
                       >
                         {t('settings.kick')}
@@ -265,11 +265,11 @@ export function GroupSettings() {
       ) : null}
 
       {confirmLeave ? (
-        <div className="stack">
+        <div className="stack pop-in">
           <p>{t('settings.leaveConfirm')}</p>
           <button
             type="button"
-            className="btn btn-primary"
+            className="btn btn-danger"
             disabled={busy}
             onClick={() =>
               void run(async () => {
@@ -285,7 +285,7 @@ export function GroupSettings() {
           </button>
         </div>
       ) : (
-        <button type="button" className="btn btn-secondary" onClick={() => setConfirmLeave(true)}>
+        <button type="button" className="btn btn-danger" onClick={() => setConfirmLeave(true)}>
           {t('settings.leave')}
         </button>
       )}

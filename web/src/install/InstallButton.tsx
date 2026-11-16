@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { InstallGuide } from './InstallGuide';
 import { promptInstall } from './installPrompt';
 import { useInstallMode } from './useInstall';
 
@@ -28,19 +29,7 @@ export function InstallButton({ onDone }: { onDone?: () => void }) {
   }
 
   if (guide && (mode === 'ios' || mode === 'android')) {
-    return (
-      <section className="card stack" aria-labelledby="install-guide-title">
-        <strong id="install-guide-title">{t('install.guideTitle')}</strong>
-        <ol className="steps">
-          <li>{t(`install.${mode}.step1`)}</li>
-          <li>{t(`install.${mode}.step2`)}</li>
-          <li>{t(`install.${mode}.step3`)}</li>
-        </ol>
-        <button type="button" className="btn btn-secondary" onClick={() => setGuide(false)}>
-          {t('install.gotIt')}
-        </button>
-      </section>
-    );
+    return <InstallGuide mode={mode} onClose={() => setGuide(false)} />;
   }
 
   return (

@@ -190,11 +190,11 @@ export function Question() {
 
       {canManage ? (
         confirmDelete ? (
-          <div className="stack">
+          <div className="stack pop-in">
             <p>{t('question.deleteConfirm')}</p>
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn btn-danger"
               disabled={busy}
               onClick={() =>
                 void run(async () => {
@@ -210,7 +210,7 @@ export function Question() {
             </button>
           </div>
         ) : (
-          <button type="button" className="btn btn-secondary" onClick={() => setConfirmDelete(true)}>
+          <button type="button" className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
             {t('question.delete')}
           </button>
         )

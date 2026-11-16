@@ -1,3 +1,4 @@
+/* Components. Rules and rationale: design-system/MASTER.md */
 *,
 *::before,
 *::after {
@@ -14,9 +15,11 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
+  font-size: var(--text-body);
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #root {
@@ -29,14 +32,51 @@ body {
 }
 
 h1 {
-  font-size: 1.75rem;
+  font-size: var(--text-h1);
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.25;
   margin-block: var(--space-4);
 }
 
+h2 {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-block: var(--space-4) 0;
+}
+
+p {
+  margin-block: 0;
+}
+
 a {
-  color: var(--color-primary-strong);
+  color: var(--color-primary-text);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Screen arrival: seen often, so a short fade with a tiny rise and nothing more. */
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  animation: screen-in var(--dur-quick) var(--ease-out) both;
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 .card {
@@ -47,6 +87,19 @@ a {
   padding: var(--space-4);
 }
 
+/* Guides and prompts that appear in place after a tap. */
+.pop-in {
+  animation: pop-in var(--dur-quick) var(--ease-out) both;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -58,20 +111,84 @@ a {
   border-radius: var(--radius-pill);
   font: inherit;
   font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    opacity var(--dur-quick) ease;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .btn-primary {
+  min-block-size: var(--tap-primary);
   background: var(--color-primary);
   color: var(--color-on-primary);
 }
 
-.btn:focus-visible,
-a:focus-visible {
-  outline: 3px solid var(--color-accent);
-  outline-offset: 2px;
+/* Teal on coral is too faint, so the ring on a coral button uses the text colour. */
+.btn-primary:focus-visible {
+  outline-color: var(--color-text);
 }
 
+.btn-secondary {
+  background: transparent;
+  color: var(--color-primary-text);
+  border: 2px solid var(--color-primary);
+}
+
+/* Compact pill for the header. Still 44px tall to stay easy to tap. */
+.btn-small {
+  min-block-size: var(--tap-min);
+  padding-inline: var(--space-3);
+  font-size: var(--text-small);
+  gap: var(--space-1);
+}
+
+.btn-small .icon {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--color-danger);
+  border: 2px solid var(--color-danger);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover:not(:disabled) {
+    filter: brightness(1.06);
+  }
+
+  .btn-secondary:hover:not(:disabled),
+  .btn-danger:hover:not(:disabled) {
+    background: var(--color-surface);
+  }
+
+  a.card:hover {
+    border-color: var(--color-border-strong);
+  }
+}
+
+/* Loading */
 .skeleton {
   display: block;
   min-block-size: 1em;
@@ -95,12 +212,7 @@ a:focus-visible {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .skeleton {
-    animation: none;
-  }
-}
-
+/* Layout */
 .screen-header {
   display: flex;
   align-items: center;
@@ -111,13 +223,15 @@ a:focus-visible {
 
 .app-name {
   font-weight: 800;
-  color: var(--color-primary-strong);
+  color: var(--color-primary-text);
 }
 
 .back-link {
   display: inline-flex;
   align-items: center;
   min-block-size: var(--tap-min);
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .muted {
@@ -143,6 +257,13 @@ a:focus-visible {
   min-block-size: var(--tap-min);
   color: inherit;
   text-decoration: none;
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    border-color var(--dur-quick) ease;
+}
+
+.group-row:active {
+  transform: scale(0.98);
 }
 
 .actions {
@@ -150,58 +271,6 @@ a:focus-visible {
   flex-direction: column;
   gap: var(--space-3);
   margin-block-start: var(--space-6);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--color-primary-strong);
-  border: 2px solid var(--color-primary);
-  text-decoration: none;
-}
-
-.btn-primary {
-  text-decoration: none;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  font-weight: 600;
-}
-
-.input {
-  min-block-size: var(--tap-min);
-  padding-inline: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-}
-
-.code-input {
-  text-align: center;
-  letter-spacing: 0.3em;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.error {
-  color: var(--color-primary-strong);
-  font-weight: 600;
-  margin: 0;
-}
-
-h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-block: var(--space-4) var(--space-2);
 }
 
 .title-row {
@@ -217,8 +286,54 @@ h2 {
   justify-content: center;
   min-inline-size: var(--tap-min);
   min-block-size: var(--tap-min);
-  font-size: 1.5rem;
+  border-radius: var(--radius-control);
+  color: var(--color-text);
   text-decoration: none;
+  transition: transform var(--dur-press) var(--ease-out);
+}
+
+.icon-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.icon-link:active {
+  transform: scale(0.92);
+}
+
+.icon {
+  inline-size: 24px;
+  block-size: 24px;
+  flex-shrink: 0;
+}
+
+/* Forms */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.input {
+  min-block-size: var(--tap-primary);
+  padding-inline: var(--space-4);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  /* 16px or more stops iOS Safari zooming the page on focus. */
+  font-size: max(1rem, 16px);
+  transition: border-color var(--dur-quick) ease;
+}
+
+.input:focus-visible {
+  border-color: var(--color-focus);
 }
 
 .textarea {
@@ -226,10 +341,26 @@ h2 {
   resize: vertical;
 }
 
-.counter {
-  align-self: flex-end;
+.code-input {
+  text-align: center;
+  letter-spacing: 0.3em;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
+.counter {
+  align-self: flex-end;
+  font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.error {
+  color: var(--color-danger);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* People */
 .avatar {
   inline-size: var(--avatar-size, 40px);
   block-size: var(--avatar-size, 40px);
@@ -261,8 +392,9 @@ h2 {
 }
 
 .member-tile {
+  position: relative;
   inline-size: 100%;
-  min-block-size: var(--tap-min);
+  min-block-size: 72px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -274,25 +406,57 @@ h2 {
   border-radius: var(--radius-card);
   font: inherit;
   cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    border-color var(--dur-quick) ease,
+    background-color var(--dur-quick) ease;
 }
 
+.member-tile:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Selected: ring plus a tick, so the choice never depends on colour alone. */
 .member-tile[aria-pressed='true'] {
   border-color: var(--color-primary);
   background: var(--color-bg);
-  box-shadow: var(--shadow-card);
+  box-shadow:
+    inset 0 0 0 1px var(--color-primary),
+    var(--shadow-card);
+}
+
+.member-tile::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 6px;
+  inset-inline-end: 6px;
+  inline-size: 22px;
+  block-size: 22px;
+  border-radius: 50%;
+  background: var(--color-primary)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1612' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+    center / 14px no-repeat;
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
+  pointer-events: none;
+}
+
+.member-tile[aria-pressed='true']::after {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .member-tile:disabled {
   opacity: 0.6;
-}
-
-.member-tile:focus-visible {
-  outline: 3px solid var(--color-accent);
-  outline-offset: 2px;
+  cursor: default;
 }
 
 .member-name {
-  font-size: 0.85rem;
+  font-size: var(--text-small);
   font-weight: 600;
   max-inline-size: 100%;
   overflow: hidden;
@@ -300,6 +464,21 @@ h2 {
   white-space: nowrap;
 }
 
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.member-row .member-name {
+  flex: 1;
+  min-inline-size: 0;
+  font-size: var(--text-body);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Results */
 .leaderboard {
   display: flex;
   flex-direction: column;
@@ -314,6 +493,7 @@ h2 {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
+  font-variant-numeric: tabular-nums;
 }
 
 .leader-top {
@@ -339,7 +519,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  font-size: 1.25rem;
+  font-size: var(--text-h2);
 }
 
 .results {
@@ -359,23 +539,33 @@ h2 {
 .confetti span {
   font-size: 1.5rem;
   opacity: 0;
-  animation: confetti-burst 0.7s ease-out forwards;
+  animation: confetti-burst var(--dur-celebrate) var(--ease-out) forwards;
   animation-delay: calc(var(--i) * 30ms);
 }
 
+/* The reveal is the one rare, big moment: the winner pops, the rest follow in order. */
 .celebrate .leader-top,
 .celebrate .winners-card {
-  animation: reveal-pop 0.7s cubic-bezier(0.2, 1.4, 0.4, 1);
+  animation: reveal-pop var(--dur-celebrate) var(--ease-pop) both;
+}
+
+.celebrate .leader-row:not(.leader-top) {
+  animation: screen-in var(--dur-enter) var(--ease-out) both;
+  animation-delay: 240ms;
+}
+
+.celebrate .leader-row:not(.leader-top):nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.celebrate .leader-row:not(.leader-top):nth-child(3) {
+  animation-delay: 200ms;
 }
 
 @keyframes reveal-pop {
   from {
-    transform: scale(0.8);
+    transform: scale(0.9);
     opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
   }
 }
 
@@ -390,18 +580,7 @@ h2 {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .celebrate .leader-top,
-  .celebrate .winners-card,
-  .confetti span {
-    animation: none;
-  }
-
-  .confetti {
-    display: none;
-  }
-}
-
+/* Group settings */
 .toggle-row {
   display: flex;
   flex-wrap: wrap;
@@ -414,7 +593,7 @@ h2 {
 
 .code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 2rem;
+  font-size: var(--text-display);
   font-weight: 800;
   letter-spacing: 0.2em;
   text-align: center;
@@ -429,31 +608,51 @@ h2 {
   text-align: center;
 }
 
-.member-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.member-name {
-  flex: 1;
-  min-inline-size: 0;
-  overflow-wrap: anywhere;
-}
-
 .badge {
   padding-inline: var(--space-3);
   padding-block: 2px;
   border-radius: var(--radius-pill);
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: var(--color-on-primary);
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .steps {
   margin: 0;
-  padding-inline-start: var(--space-4, 1.25rem);
+  padding-inline-start: 1.25rem;
   display: grid;
   gap: var(--space-2);
+}
+
+/* Reduced motion: keep the fades that explain a change, drop movement and scale. */
+@media (prefers-reduced-motion: reduce) {
+  .screen,
+  .pop-in,
+  .celebrate .leader-top,
+  .celebrate .winners-card,
+  .celebrate .leader-row:not(.leader-top) {
+    animation-name: fade-in;
+  }
+
+  .btn:active:not(:disabled),
+  .group-row:active,
+  .icon-link:active,
+  .member-tile:active:not(:disabled) {
+    transform: none;
+  }
+
+  .member-tile::after {
+    transform: none;
+    transition-property: opacity;
+  }
+
+  .skeleton {
+    animation: none;
+  }
+
+  .confetti {
+    display: none;
+  }
 }
