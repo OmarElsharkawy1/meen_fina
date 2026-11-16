@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { Screen } from '../components/Screen';
 import { setLang } from '../data/useProfile';
+import { InstallRow } from '../install/InstallRow';
 import type { Lang } from '../lib/lang';
 import { NotificationsRow } from '../push/NotificationsRow';
 
@@ -58,6 +59,7 @@ export function Settings() {
           ))}
         </div>
       </section>
+      <InstallRow />
       {user ? <NotificationsRow uid={user.uid} /> : null}
       {error ? (
         <p role="alert" className="error">

@@ -5,6 +5,7 @@ import { SignInButton } from '../auth/SignInButton';
 import { useAuth } from '../auth/AuthProvider';
 import { Screen } from '../components/Screen';
 import { useMyGroups } from '../data/useMyGroups';
+import { InstallCard } from '../install/InstallCard';
 import { clearPendingJoin, getPendingJoin } from '../lib/pendingJoin';
 
 export function Home() {
@@ -41,6 +42,7 @@ export function Home() {
           </p>
         ) : null}
         <SignInButton />
+        <InstallCard />
       </Screen>
     );
   }
@@ -53,6 +55,7 @@ export function Home() {
           ⚙
         </Link>
       </div>
+      <InstallCard />
       {groupsLoading ? (
         <div className="stack" aria-busy="true">
           <span className="skeleton" style={{ blockSize: 64 }} />

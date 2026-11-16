@@ -47,3 +47,28 @@ export function currentPushSupport(): PushSupport {
     hasPushManager: 'PushManager' in window,
   });
 }
+
+/** How the "Install app" button behaves on this device. */
+export type InstallMode = 'installed' | 'prompt' | 'ios' | 'android' | 'none';
+
+export type InstallEnv = {
+  ua: string;
+  maxTouchPoints: number;
+  standalone: boolean;
+  /** The browser fired `beforeinstallprompt` and we hold the event. */
+  canPrompt: boolean;
+};
+
+export function isAndroid(ua: string): boolean {
+  return /Android/i.test(ua);
+}
+
+export function installMode(env: InstallEnv): InstallMode {
+  if (env.standalone) return 'installed';
+  // iOS has no install API in any browser: show the Share → Add to Home Screen steps.
+  if (isIos(env.ua, env.maxTouchPoints)) return 'ios';
+  if (env.canPrompt) return 'prompt';
+  // Android browsers without the prompt (or before it fires): show menu steps.
+  if (isAndroid(env.ua)) return 'android';
+  return 'none';
+}

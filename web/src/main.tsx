@@ -6,6 +6,7 @@ import { ProfileLang } from './ProfileLang';
 import { AuthProvider } from './auth/AuthProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import './i18n';
+import './install/installPrompt';
 import { applyLang, detectLang, storedLang } from './lib/lang';
 import { PushRefresh } from './push/PushRefresh';
 import './styles/tokens.css';

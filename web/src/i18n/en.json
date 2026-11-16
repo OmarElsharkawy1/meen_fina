@@ -141,5 +141,25 @@
     "on": "On",
     "blocked": "Blocked — allow notifications in your browser settings",
     "failed": "Couldn't turn on notifications. Try again."
+  },
+  "install": {
+    "button": "Install app",
+    "cardTitle": "Get Meen Fina on your home screen",
+    "cardBody": "Opens full screen like a normal app, and lets you get notifications.",
+    "notNow": "Not now",
+    "guideTitle": "Install Meen Fina",
+    "gotIt": "Got it",
+    "settingsTitle": "App",
+    "installed": "Installed on this device",
+    "ios": {
+      "step1": "Tap the Share button (the square with an arrow).",
+      "step2": "Scroll and tap \"Add to Home Screen\", then \"Add\".",
+      "step3": "Open Meen Fina from your home screen and sign in."
+    },
+    "android": {
+      "step1": "Tap the ⋮ menu in your browser.",
+      "step2": "Tap \"Install app\" or \"Add to Home screen\".",
+      "step3": "Open Meen Fina from your home screen."
+    }
   }
 }
