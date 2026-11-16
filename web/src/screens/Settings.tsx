@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
+import { NameRow } from '../components/NameRow';
 import { Screen } from '../components/Screen';
 import { setLang } from '../data/useProfile';
 import { InstallRow } from '../install/InstallRow';
@@ -59,6 +60,7 @@ export function Settings() {
           ))}
         </div>
       </section>
+      {user ? <NameRow fallbackName={user.displayName ?? ''} /> : null}
       <InstallRow />
       {user ? <NotificationsRow uid={user.uid} /> : null}
       {error ? (

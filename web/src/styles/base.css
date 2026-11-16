@@ -360,6 +360,34 @@ a {
   margin: 0;
 }
 
+/* "You voted" / "not yet": icon plus words, never colour alone. */
+.vote-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-small);
+  font-weight: 600;
+}
+
+.vote-status .icon {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+.vote-status-done {
+  color: var(--color-success);
+}
+
+.vote-status-todo {
+  color: var(--color-primary-text);
+}
+
+.success {
+  color: var(--color-success);
+  font-weight: 600;
+  margin: 0;
+}
+
 /* People */
 .avatar {
   inline-size: var(--avatar-size, 40px);
@@ -385,10 +413,41 @@ a {
   gap: var(--space-2);
 }
 
+/* minmax(0, 1fr) lets long names shrink instead of pushing the grid wider than the screen. */
 .member-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-3);
+}
+
+/* Bigger groups: two columns of short rows, avatar beside the name. */
+.member-grid-compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.member-grid-compact .member-tile {
+  flex-direction: row;
+  justify-content: flex-start;
+  min-block-size: 56px;
+  padding: var(--space-2) var(--space-3);
+  padding-inline-end: 32px;
+  border-radius: var(--radius-control);
+  text-align: start;
+}
+
+.member-grid-compact .member-name {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+}
+
+.member-grid-compact .member-tile::after {
+  inset-block-start: 50%;
+  margin-block-start: -11px;
+  inset-inline-end: 8px;
 }
 
 .member-tile {

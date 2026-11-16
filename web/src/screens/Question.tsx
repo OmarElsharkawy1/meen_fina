@@ -12,6 +12,7 @@ import { Screen } from '../components/Screen';
 import { WinnersCard } from '../components/WinnersCard';
 import { useGroup } from '../data/useGroup';
 import { useQuestion } from '../data/useQuestions';
+import { isolate } from '../lib/bidi';
 import { errorKey } from '../lib/errors';
 import { PushPrompt } from '../push/PushPrompt';
 
@@ -105,7 +106,7 @@ export function Question() {
     <Screen back={back}>
       <h1 dir="auto">{question.text}</h1>
       <p className="muted">
-        {t('group.askedBy', { name: question.people[question.askerUid]?.name ?? '?' })}
+        {t('group.askedBy', { name: isolate(question.people[question.askerUid]?.name ?? '?') })}
       </p>
 
       {question.status === 'open' ? (

@@ -56,6 +56,12 @@ export type UserDoc = {
   mutedGroupIds: string[];
 };
 
+/** At profiles/{uid}. Server-only: the name the user chose, overriding their Google name. */
+export type ProfileDoc = { name: string };
+
+export type SetDisplayNameInput = { name: string };
+export type SetDisplayNameOutput = { name: string };
+
 export type CreateGroupInput = { name: string };
 export type CreateGroupOutput = { groupId: string; code: string };
 

@@ -6,5 +6,8 @@ export const MIN_VOTES_TO_REVEAL = 3;
 export const WINNERS_ONLY_BELOW = 5;
 export const QUESTION_MAX_LEN = 150;
 export const GROUP_NAME_MAX_LEN = 40;
+export const DISPLAY_NAME_MAX_LEN = 30;
+/** A rename also fixes the name on this many of a group's most recent closed questions. */
+export const RENAME_CLOSED_LIMIT = 30;
 export const AUTO_REVEAL_MS = 48 * 3600 * 1000;
 export const REGION = 'europe-west1';

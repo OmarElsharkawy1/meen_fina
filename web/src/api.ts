@@ -19,6 +19,8 @@ import type {
   RegenerateCodeOutput,
   RevealQuestionInput,
   SetCodeActiveInput,
+  SetDisplayNameInput,
+  SetDisplayNameOutput,
   TransferAdminInput,
   UnbanMemberInput,
 } from '@shared/types';
@@ -43,6 +45,7 @@ export const api = {
   setCodeActive: callable<SetCodeActiveInput, void>('setCodeActive'),
   regenerateCode: callable<RegenerateCodeInput, RegenerateCodeOutput>('regenerateCode'),
   transferAdmin: callable<TransferAdminInput, void>('transferAdmin'),
+  setDisplayName: callable<SetDisplayNameInput, SetDisplayNameOutput>('setDisplayName'),
 };
 
 /** Reads `details.reason` from a callable error. */

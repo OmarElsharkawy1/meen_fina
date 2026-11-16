@@ -43,3 +43,19 @@ export function DownloadIcon() {
     </svg>
   );
 }
+
+export function CheckIcon() {
+  return (
+    <svg {...base}>
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  );
+}
+
+export function DotIcon() {
+  return (
+    <svg {...base}>
+      <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}

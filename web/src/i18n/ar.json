@@ -75,7 +75,11 @@
     "mute": "كتم الإشعارات",
     "unmute": "إلغاء الكتم",
     "leave": "غادر المجموعة",
-    "leaveConfirm": "تغادر المجموعة دي؟"
+    "leaveConfirm": "تغادر المجموعة دي؟",
+    "yourName": "اسمك",
+    "yourNameHint": "ده الاسم اللي صحابك بيشوفوه في كل المجموعات.",
+    "saveName": "احفظ الاسم",
+    "nameSaved": "الاسم اتحفظ"
   },
   "home": {
     "empty": "لسه مفيش مجموعات. اعمل واحدة أو ادخل بكود.",
@@ -108,7 +112,11 @@
     "voted": "{{voted}}/{{total}} صوّتوا",
     "vote": "صوّت",
     "topLine": "🥇 {{name}} · {{votes}}",
-    "winnerLine": "🥇 {{name}}"
+    "winnerLine": "🥇 {{name}}",
+    "youVoted": "صوّتت",
+    "notVotedYet": "لسه ماصوّتتش",
+    "changeVote": "غيّر صوتك",
+    "view": "شوف"
   },
   "ask": {
     "label": "مين فينا...؟",

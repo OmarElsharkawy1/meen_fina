@@ -12,7 +12,7 @@ import type {
   PreviewGroupInput,
   PreviewGroupOutput,
 } from '../shared/types';
-import { fail, requireAuth, type Ctx } from './ctx';
+import { fail, personFor, requireAuth, type Ctx } from './ctx';
 
 const MAX_CODE_ATTEMPTS = 5;
 
@@ -33,7 +33,7 @@ export async function createGroup(ctx: Ctx, input: CreateGroupInput): Promise<Cr
   if (name.length === 0 || name.length > GROUP_NAME_MAX_LEN) {
     return fail('invalid-input', 'invalid-argument');
   }
-  const person = ctx.person ?? { name: '?', photoURL: null };
+  const person = await personFor(ctx, uid);
   const groupRef = ctx.db.collection('groups').doc();
 
   for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt++) {
@@ -80,7 +80,7 @@ export async function previewGroup(
 export async function joinGroup(ctx: Ctx, input: JoinGroupInput): Promise<JoinGroupOutput> {
   const uid = requireAuth(ctx);
   const code = normalizeCode(input?.code);
-  const person = ctx.person ?? { name: '?', photoURL: null };
+  const person = await personFor(ctx, uid);
 
   return ctx.db.runTransaction(async (tx) => {
     const codeSnap = await tx.get(ctx.db.doc(`codes/${code}`));

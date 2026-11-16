@@ -75,7 +75,11 @@
     "mute": "Mute notifications",
     "unmute": "Unmute notifications",
     "leave": "Leave group",
-    "leaveConfirm": "Leave this group?"
+    "leaveConfirm": "Leave this group?",
+    "yourName": "Your name",
+    "yourNameHint": "This is the name your friends see in every group.",
+    "saveName": "Save name",
+    "nameSaved": "Name saved"
   },
   "home": {
     "empty": "No groups yet. Create one or join with a code.",
@@ -104,7 +108,11 @@
     "voted": "{{voted}}/{{total}} voted",
     "vote": "Vote",
     "topLine": "🥇 {{name}} · {{votes}}",
-    "winnerLine": "🥇 {{name}}"
+    "winnerLine": "🥇 {{name}}",
+    "youVoted": "You voted",
+    "notVotedYet": "You haven't voted yet",
+    "changeVote": "Change vote",
+    "view": "View"
   },
   "ask": {
     "label": "Who in the group...?",

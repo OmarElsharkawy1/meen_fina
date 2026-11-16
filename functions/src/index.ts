@@ -14,6 +14,7 @@ import { ctxFromRequest } from './handlers/ctx';
 import * as expiry from './handlers/expiry';
 import * as groupsHandlers from './handlers/groups';
 import * as membership from './handlers/membership';
+import * as profile from './handlers/profile';
 import * as questionsHandlers from './handlers/questions';
 import { pushForQuestionChange } from './notify/notify';
 import { REGION } from './shared/constants';
@@ -34,6 +35,7 @@ export const kickMember = onCall(async (req) => membership.kickMember(ctxFromReq
 export const unbanMember = onCall(async (req) => membership.unbanMember(ctxFromRequest(req), req.data));
 export const setCodeActive = onCall(async (req) => membership.setCodeActive(ctxFromRequest(req), req.data));
 export const regenerateCode = onCall(async (req) => membership.regenerateCode(ctxFromRequest(req), req.data));
+export const setDisplayName = onCall(async (req) => profile.setDisplayName(ctxFromRequest(req), req.data));
 export const transferAdmin = onCall(async (req) => membership.transferAdmin(ctxFromRequest(req), req.data));
 
 export const expireQuestions = onSchedule(

@@ -7,7 +7,7 @@ import {
 } from 'firebase-admin/firestore';
 import { HttpsError, type CallableRequest, type FunctionsErrorCode } from 'firebase-functions/v2/https';
 import type { ErrorReason } from '../shared/errors';
-import type { GroupDoc, Person } from '../shared/types';
+import type { GroupDoc, Person, ProfileDoc } from '../shared/types';
 
 export type Ctx = {
   db: Firestore;
@@ -23,6 +23,17 @@ export function fail(reason: ErrorReason, code?: FunctionsErrorCode): never {
 export function requireAuth(ctx: Ctx): string {
   if (!ctx.uid) return fail('unauthenticated', 'unauthenticated');
   return ctx.uid;
+}
+
+/**
+ * The caller as shown to others: the name they chose (profiles/{uid}) if any,
+ * otherwise their sign-in name.
+ */
+export async function personFor(ctx: Ctx, uid: string): Promise<Person> {
+  const base = ctx.person ?? { name: '?', photoURL: null };
+  const snap = await ctx.db.doc(`profiles/${uid}`).get();
+  const chosen = snap.exists ? (snap.data() as Partial<ProfileDoc>).name : undefined;
+  return typeof chosen === 'string' && chosen.length > 0 ? { ...base, name: chosen } : base;
 }
 
 export type LoadedGroup = { ref: DocumentReference; data: GroupDoc };

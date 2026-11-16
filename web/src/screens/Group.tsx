@@ -4,10 +4,11 @@ import { Link, useParams } from 'react-router-dom';
 import { MIN_MEMBERS_TO_ASK } from '@shared/constants';
 import { SignInButton } from '../auth/SignInButton';
 import { useAuth } from '../auth/AuthProvider';
-import { SettingsIcon } from '../components/icons';
+import { CheckIcon, DotIcon, SettingsIcon } from '../components/icons';
 import { Screen } from '../components/Screen';
 import { useGroup } from '../data/useGroup';
 import { useQuestions, type QuestionWithId } from '../data/useQuestions';
+import { isolate } from '../lib/bidi';
 import { rankLeaderboard } from '../lib/leaderboard';
 import { PushPrompt } from '../push/PushPrompt';
 import { clearAskPush, peekAskPush } from '../push/pushFlag';
@@ -23,7 +24,7 @@ function TopLine({ q }: { q: QuestionWithId }) {
   if (q.results?.mode === 'winners') {
     return (
       <span dir="auto">
-        {t('group.winnerLine', { name: q.results.winnerUids.map(nameOf).join(', ') })}
+        {t('group.winnerLine', { name: q.results.winnerUids.map((u) => isolate(nameOf(u))).join(', ') })}
       </span>
     );
   }
@@ -96,6 +97,7 @@ export function Group() {
           <SettingsIcon />
         </Link>
       </div>
+      <p className="muted">{t('home.members', { count: group.memberUids.length })}</p>
       {askPush ? (
         <PushPrompt
           uid={user.uid}
@@ -131,19 +133,36 @@ export function Group() {
             <section className="stack">
               <h2>{t('group.open')}</h2>
               <ul className="stack list">
-                {open.map((q) => (
-                  <li key={q.id} className="card stack">
-                    <strong dir="auto">{q.text}</strong>
-                    <span className="muted">
-                      {t('group.askedBy', { name: q.people[q.askerUid]?.name ?? group.members[q.askerUid]?.name ?? '?' })}
-                      {' · '}
-                      {t('group.voted', { voted: q.votedUids.length, total: q.eligibleUids.length })}
-                    </span>
-                    <Link to={`/g/${groupId}/q/${q.id}`} className="btn btn-secondary">
-                      {t('group.vote')}
-                    </Link>
-                  </li>
-                ))}
+                {open.map((q) => {
+                  const eligible = q.eligibleUids.includes(user.uid);
+                  const voted = q.votedUids.includes(user.uid);
+                  return (
+                    <li key={q.id} className="card stack">
+                      <strong dir="auto">{q.text}</strong>
+                      <span className="muted">
+                        {t('group.askedBy', {
+                          name: isolate(q.people[q.askerUid]?.name ?? group.members[q.askerUid]?.name ?? '?'),
+                        })}
+                        {' · '}
+                        {t('group.voted', { voted: q.votedUids.length, total: q.eligibleUids.length })}
+                      </span>
+                      {eligible ? (
+                        <span className={voted ? 'vote-status vote-status-done' : 'vote-status vote-status-todo'}>
+                          {voted ? <CheckIcon /> : <DotIcon />}
+                          {t(voted ? 'group.youVoted' : 'group.notVotedYet')}
+                        </span>
+                      ) : (
+                        <span className="muted">{t('question.notEligible')}</span>
+                      )}
+                      <Link
+                        to={`/g/${groupId}/q/${q.id}`}
+                        className={eligible && !voted ? 'btn btn-primary' : 'btn btn-secondary'}
+                      >
+                        {t(!eligible ? 'group.view' : voted ? 'group.changeVote' : 'group.vote')}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
           ) : null}

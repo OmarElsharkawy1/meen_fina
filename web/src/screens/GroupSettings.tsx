@@ -10,6 +10,7 @@ import { useBanned } from '../data/useBanned';
 import { useGroup } from '../data/useGroup';
 import { useProfile } from '../data/useProfile';
 import { db } from '../firebase';
+import { isolate } from '../lib/bidi';
 import { errorKey } from '../lib/errors';
 import { shareLink, whatsappShareUrl } from '../lib/share';
 
@@ -167,7 +168,9 @@ export function GroupSettings() {
       </section>
 
       <section className="stack">
-        <h3>{t('settings.members')}</h3>
+        <h3>
+          {t('settings.members')} ({group.memberUids.length})
+        </h3>
         <ul className="stack list">
           {memberIds.map((m) => {
             const person = group.members[m];
@@ -184,11 +187,11 @@ export function GroupSettings() {
                 </div>
                 {isAdmin && !self ? (
                   pending?.kind === 'kick' ? (
-                    confirmBlock(t('settings.kickConfirm', { name: person.name }), t('settings.kick'), () =>
+                    confirmBlock(t('settings.kickConfirm', { name: isolate(person.name) }), t('settings.kick'), () =>
                       void run(() => api.kickMember({ groupId, uid: m })),
                     )
                   ) : pending?.kind === 'admin' ? (
-                    confirmBlock(t('settings.makeAdminConfirm', { name: person.name }), t('settings.makeAdmin'), () =>
+                    confirmBlock(t('settings.makeAdminConfirm', { name: isolate(person.name) }), t('settings.makeAdmin'), () =>
                       void run(() => api.transferAdmin({ groupId, uid: m })),
                     )
                   ) : (
