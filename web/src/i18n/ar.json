@@ -116,9 +116,13 @@
     "notVotedYet": "لسه ماصوّتتش",
     "changeVote": "غيّر صوتك",
     "view": "شوف",
-    "yourTurn": "دورك",
-    "waiting": "مستنيين الباقيين",
-    "results": "النتايج"
+    "questionsLabel": "الأسئلة",
+    "emptyTurn": "خلّصت كل حاجة. مفيش أسئلة مستنياك.",
+    "emptyWaiting": "مفيش أسئلة مستنية الباقيين.",
+    "emptyResults": "لسه مفيش نتايج.",
+    "tabTurn": "دورك",
+    "tabWaiting": "مستنيين",
+    "tabResults": "النتايج"
   },
   "ask": {
     "label": "مين فينا...؟",

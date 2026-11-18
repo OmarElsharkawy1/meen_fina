@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignInButton } from '../auth/SignInButton';
 import { useAuth } from '../auth/AuthProvider';
-import { SettingsIcon } from '../components/icons';
 import { Screen } from '../components/Screen';
 import { useMyGroups } from '../data/useMyGroups';
 import { InstallCard } from '../install/InstallCard';
@@ -50,12 +49,7 @@ export function Home() {
 
   return (
     <Screen>
-      <div className="title-row">
-        <h1>{t('screens.home')}</h1>
-        <Link to="/settings" className="icon-link" aria-label={t('screens.settings')}>
-          <SettingsIcon />
-        </Link>
-      </div>
+      <h1>{t('screens.home')}</h1>
       <InstallCard />
       {groupsLoading ? (
         <div className="stack" aria-busy="true">

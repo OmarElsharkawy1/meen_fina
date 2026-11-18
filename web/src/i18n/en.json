@@ -112,9 +112,13 @@
     "notVotedYet": "You haven't voted yet",
     "changeVote": "Change vote",
     "view": "View",
-    "yourTurn": "Your turn",
-    "waiting": "Waiting on others",
-    "results": "Results"
+    "questionsLabel": "Questions",
+    "emptyTurn": "You're all caught up. Nothing waiting for your vote.",
+    "emptyWaiting": "No questions waiting on others.",
+    "emptyResults": "No results yet.",
+    "tabTurn": "Your turn",
+    "tabWaiting": "Waiting",
+    "tabResults": "Results"
   },
   "ask": {
     "label": "Who in the group...?",

@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { MIN_MEMBERS_TO_ASK } from '@shared/constants';
 import { SignInButton } from '../auth/SignInButton';
 import { useAuth } from '../auth/AuthProvider';
-import { CheckIcon, DotIcon, SettingsIcon } from '../components/icons';
+import { CheckIcon, DotIcon, UsersIcon } from '../components/icons';
 import { Screen } from '../components/Screen';
+import { TabBar } from '../components/TabBar';
 import { useGroup } from '../data/useGroup';
 import { useQuestions, type QuestionWithId } from '../data/useQuestions';
 import { isolate } from '../lib/bidi';
+import { pickTab, type GroupTab } from '../lib/groupTabs';
 import { rankLeaderboard } from '../lib/leaderboard';
 import { PushPrompt } from '../push/PushPrompt';
 import { clearAskPush, peekAskPush } from '../push/pushFlag';
@@ -79,6 +81,9 @@ export function Group() {
   const { group, loading: groupLoading } = useGroup(user ? groupId : undefined);
   const { questions, loading: qLoading } = useQuestions(group ? groupId : undefined);
   const [askPush, setAskPush] = useState(peekAskPush);
+  // The tab lives in the URL (?tab=) so Back from a question returns to the same tab.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectTab = (next: GroupTab) => setSearchParams({ tab: next }, { replace: true });
   // Consume the one-shot flag as soon as it has been read.
   useEffect(() => clearAskPush(), []);
 
@@ -118,6 +123,11 @@ export function Group() {
     .filter((q) => q.status !== 'open')
     .sort((a, b) => closedAtMs(b) - closedAtMs(a));
   const canAsk = group.memberUids.length >= MIN_MEMBERS_TO_ASK;
+  const tab = pickTab(searchParams.get('tab'), {
+    turn: yourTurn.length,
+    waiting: waiting.length,
+    results: closed.length,
+  });
   const askerName = (q: QuestionWithId) =>
     q.people[q.askerUid]?.name ?? group.members[q.askerUid]?.name ?? '?';
 
@@ -126,7 +136,7 @@ export function Group() {
       <div className="title-row">
         <h1 dir="auto">{group.name}</h1>
         <Link to={`/g/${groupId}/settings`} className="icon-link" aria-label={t('screens.groupSettings')}>
-          <SettingsIcon />
+          <UsersIcon />
         </Link>
       </div>
       <p className="muted">{t('home.members', { count: group.memberUids.length })}</p>
@@ -160,36 +170,19 @@ export function Group() {
       ) : questions.length === 0 ? (
         <p className="muted">{t('group.noQuestions')}</p>
       ) : (
-        <>
-          {yourTurn.length > 0 ? (
-            <section className="stack" aria-labelledby="sec-your-turn">
-              <h2 id="sec-your-turn">
-                {t('group.yourTurn')} <span className="count">{yourTurn.length}</span>
-              </h2>
-              <ul className="stack list">
-                {yourTurn.map((q) => (
-                  <OpenCard key={q.id} q={q} groupId={groupId} uid={user.uid} askerName={askerName(q)} />
-                ))}
-              </ul>
-            </section>
-          ) : null}
-          {waiting.length > 0 ? (
-            <section className="stack" aria-labelledby="sec-waiting">
-              <h2 id="sec-waiting">
-                {t('group.waiting')} <span className="count">{waiting.length}</span>
-              </h2>
-              <ul className="stack list">
-                {waiting.map((q) => (
-                  <OpenCard key={q.id} q={q} groupId={groupId} uid={user.uid} askerName={askerName(q)} />
-                ))}
-              </ul>
-            </section>
-          ) : null}
-          {closed.length > 0 ? (
-            <section className="stack" aria-labelledby="sec-results">
-              <h2 id="sec-results">
-                {t('group.results')} <span className="count">{closed.length}</span>
-              </h2>
+        <TabBar
+          label={t('group.questionsLabel')}
+          idPrefix="questions"
+          selected={tab}
+          onSelect={selectTab}
+          tabs={[
+            { id: 'turn', label: t('group.tabTurn'), count: yourTurn.length },
+            { id: 'waiting', label: t('group.tabWaiting'), count: waiting.length },
+            { id: 'results', label: t('group.tabResults'), count: closed.length },
+          ]}
+        >
+          {tab === 'results' ? (
+            closed.length > 0 ? (
               <ul className="stack list">
                 {closed.map((q) => (
                   <li key={q.id}>
@@ -200,9 +193,19 @@ export function Group() {
                   </li>
                 ))}
               </ul>
-            </section>
-          ) : null}
-        </>
+            ) : (
+              <p className="muted empty">{t('group.emptyResults')}</p>
+            )
+          ) : (tab === 'turn' ? yourTurn : waiting).length > 0 ? (
+            <ul className="stack list">
+              {(tab === 'turn' ? yourTurn : waiting).map((q) => (
+                <OpenCard key={q.id} q={q} groupId={groupId} uid={user.uid} askerName={askerName(q)} />
+              ))}
+            </ul>
+          ) : (
+            <p className="muted empty">{t(tab === 'turn' ? 'group.emptyTurn' : 'group.emptyWaiting')}</p>
+          )}
+        </TabBar>
       )}
     </Screen>
   );

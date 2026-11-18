@@ -360,6 +360,84 @@ a {
   margin: 0;
 }
 
+/* Group question tabs: pinned to the top while the list scrolls. */
+.tabbar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-1);
+  padding: var(--space-1);
+  margin-block-start: var(--space-2);
+  margin-inline: calc(var(--space-1) * -1);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  box-shadow: 0 0 0 1px var(--color-border) inset, 0 6px 10px -8px rgb(0 0 0 / 25%);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-block-size: var(--tap-min);
+  min-inline-size: 0;
+  padding-inline: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--text-small);
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background-color var(--dur-quick) ease,
+    color var(--dur-quick) ease,
+    transform var(--dur-press) var(--ease-out);
+}
+
+.tab-label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab:active {
+  transform: scale(0.97);
+}
+
+.tab[aria-selected='true'] {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
+}
+
+.tab .count {
+  margin-inline-start: 0;
+  flex-shrink: 0;
+}
+
+.tab[aria-selected='true'] .count {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* Switching tabs: a quick fade so the new list doesn't just snap in. */
+.tab-panel {
+  margin-block-start: var(--space-2);
+  animation: fade-in var(--dur-quick) var(--ease-out) both;
+}
+
+.empty {
+  padding-block: var(--space-6);
+  text-align: center;
+}
+
 /* Section count pill next to a heading. */
 .count {
   display: inline-flex;
@@ -715,6 +793,7 @@ a {
   .btn:active:not(:disabled),
   .group-row:active,
   .icon-link:active,
+  .tab:active,
   .member-tile:active:not(:disabled) {
     transform: none;
   }
