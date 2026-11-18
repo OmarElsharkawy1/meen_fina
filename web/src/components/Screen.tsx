@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { InstallGuide } from '../install/InstallGuide';
+import { backAction, historyIndex, previousPath } from '../lib/navStack';
 import { promptInstall } from '../install/installPrompt';
 import { useInstallMode } from '../install/useInstall';
 import { DownloadIcon } from './icons';
@@ -16,6 +17,7 @@ type Props = { title?: string; back?: string; children: ReactNode };
 export function Screen({ title, back, children }: Props) {
   const { t } = useTranslation();
   const mode = useInstallMode();
+  const navigate = useNavigate();
   const [guide, setGuide] = useState(false);
   const canInstall = mode === 'prompt' || mode === 'ios' || mode === 'android';
 
@@ -35,7 +37,16 @@ export function Screen({ title, back, children }: Props) {
     <main className="screen">
       <header className="screen-header">
         {back ? (
-          <Link to={back} className="back-link">
+          <Link
+            to={back}
+            replace
+            className="back-link"
+            onClick={(e) => {
+              if (backAction(back, previousPath(historyIndex())) !== 'pop') return;
+              e.preventDefault();
+              navigate(-1);
+            }}
+          >
             {t('common.back')}
           </Link>
         ) : null}

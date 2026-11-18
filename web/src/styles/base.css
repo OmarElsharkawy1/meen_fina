@@ -360,6 +360,23 @@ a {
   margin: 0;
 }
 
+/* Section count pill next to a heading. */
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 1.6em;
+  padding-inline: 6px;
+  margin-inline-start: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+  color: var(--color-text);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+
 /* "You voted" / "not yet": icon plus words, never colour alone. */
 .vote-status {
   display: inline-flex;

@@ -44,6 +44,34 @@ function TopLine({ q }: { q: QuestionWithId }) {
   return null;
 }
 
+/** An open question: who asked, progress, your vote status and the matching action. */
+function OpenCard({ q, groupId, uid, askerName }: { q: QuestionWithId; groupId: string; uid: string; askerName: string }) {
+  const { t } = useTranslation();
+  const eligible = q.eligibleUids.includes(uid);
+  const voted = q.votedUids.includes(uid);
+  return (
+    <li className="card stack">
+      <strong dir="auto">{q.text}</strong>
+      <span className="muted">
+        {t('group.askedBy', { name: isolate(askerName) })}
+        {' · '}
+        {t('group.voted', { voted: q.votedUids.length, total: q.eligibleUids.length })}
+      </span>
+      {eligible ? (
+        <span className={voted ? 'vote-status vote-status-done' : 'vote-status vote-status-todo'}>
+          {voted ? <CheckIcon /> : <DotIcon />}
+          {t(voted ? 'group.youVoted' : 'group.notVotedYet')}
+        </span>
+      ) : (
+        <span className="muted">{t('question.notEligible')}</span>
+      )}
+      <Link to={`/g/${groupId}/q/${q.id}`} className={eligible && !voted ? 'btn btn-primary' : 'btn btn-secondary'}>
+        {t(!eligible ? 'group.view' : voted ? 'group.changeVote' : 'group.vote')}
+      </Link>
+    </li>
+  );
+}
+
 export function Group() {
   const { t } = useTranslation();
   const { groupId = '' } = useParams();
@@ -84,10 +112,14 @@ export function Group() {
   }
 
   const open = questions.filter((q) => q.status === 'open');
+  const yourTurn = open.filter((q) => q.eligibleUids.includes(user.uid) && !q.votedUids.includes(user.uid));
+  const waiting = open.filter((q) => !yourTurn.includes(q));
   const closed = questions
     .filter((q) => q.status !== 'open')
     .sort((a, b) => closedAtMs(b) - closedAtMs(a));
   const canAsk = group.memberUids.length >= MIN_MEMBERS_TO_ASK;
+  const askerName = (q: QuestionWithId) =>
+    q.people[q.askerUid]?.name ?? group.members[q.askerUid]?.name ?? '?';
 
   return (
     <Screen back="/">
@@ -129,46 +161,35 @@ export function Group() {
         <p className="muted">{t('group.noQuestions')}</p>
       ) : (
         <>
-          {open.length > 0 ? (
-            <section className="stack">
-              <h2>{t('group.open')}</h2>
+          {yourTurn.length > 0 ? (
+            <section className="stack" aria-labelledby="sec-your-turn">
+              <h2 id="sec-your-turn">
+                {t('group.yourTurn')} <span className="count">{yourTurn.length}</span>
+              </h2>
               <ul className="stack list">
-                {open.map((q) => {
-                  const eligible = q.eligibleUids.includes(user.uid);
-                  const voted = q.votedUids.includes(user.uid);
-                  return (
-                    <li key={q.id} className="card stack">
-                      <strong dir="auto">{q.text}</strong>
-                      <span className="muted">
-                        {t('group.askedBy', {
-                          name: isolate(q.people[q.askerUid]?.name ?? group.members[q.askerUid]?.name ?? '?'),
-                        })}
-                        {' · '}
-                        {t('group.voted', { voted: q.votedUids.length, total: q.eligibleUids.length })}
-                      </span>
-                      {eligible ? (
-                        <span className={voted ? 'vote-status vote-status-done' : 'vote-status vote-status-todo'}>
-                          {voted ? <CheckIcon /> : <DotIcon />}
-                          {t(voted ? 'group.youVoted' : 'group.notVotedYet')}
-                        </span>
-                      ) : (
-                        <span className="muted">{t('question.notEligible')}</span>
-                      )}
-                      <Link
-                        to={`/g/${groupId}/q/${q.id}`}
-                        className={eligible && !voted ? 'btn btn-primary' : 'btn btn-secondary'}
-                      >
-                        {t(!eligible ? 'group.view' : voted ? 'group.changeVote' : 'group.vote')}
-                      </Link>
-                    </li>
-                  );
-                })}
+                {yourTurn.map((q) => (
+                  <OpenCard key={q.id} q={q} groupId={groupId} uid={user.uid} askerName={askerName(q)} />
+                ))}
+              </ul>
+            </section>
+          ) : null}
+          {waiting.length > 0 ? (
+            <section className="stack" aria-labelledby="sec-waiting">
+              <h2 id="sec-waiting">
+                {t('group.waiting')} <span className="count">{waiting.length}</span>
+              </h2>
+              <ul className="stack list">
+                {waiting.map((q) => (
+                  <OpenCard key={q.id} q={q} groupId={groupId} uid={user.uid} askerName={askerName(q)} />
+                ))}
               </ul>
             </section>
           ) : null}
           {closed.length > 0 ? (
-            <section className="stack">
-              <h2>{t('group.closed')}</h2>
+            <section className="stack" aria-labelledby="sec-results">
+              <h2 id="sec-results">
+                {t('group.results')} <span className="count">{closed.length}</span>
+              </h2>
               <ul className="stack list">
                 {closed.map((q) => (
                   <li key={q.id}>

@@ -1,5 +1,6 @@
-import { Suspense, lazy, type ComponentType } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Suspense, lazy, useEffect, type ComponentType } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { historyIndex, recordPath } from './lib/navStack';
 import { Home } from './screens/Home';
 import { JoinLink } from './screens/JoinLink';
 
@@ -15,6 +16,11 @@ const Question = named(() => import('./screens/Question'), 'Question');
 const Settings = named(() => import('./screens/Settings'), 'Settings');
 
 export function App() {
+  const location = useLocation();
+  useEffect(() => {
+    recordPath(historyIndex(), location.pathname);
+  }, [location]);
+
   return (
     <Suspense
       fallback={

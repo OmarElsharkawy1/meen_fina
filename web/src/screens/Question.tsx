@@ -13,6 +13,7 @@ import { WinnersCard } from '../components/WinnersCard';
 import { useGroup } from '../data/useGroup';
 import { useQuestion } from '../data/useQuestions';
 import { isolate } from '../lib/bidi';
+import { backAction, historyIndex, previousPath } from '../lib/navStack';
 import { errorKey } from '../lib/errors';
 import { PushPrompt } from '../push/PushPrompt';
 
@@ -200,7 +201,8 @@ export function Question() {
               onClick={() =>
                 void run(async () => {
                   await api.deleteQuestion({ groupId, questionId });
-                  navigate(back, { replace: true });
+                  if (backAction(back, previousPath(historyIndex())) === 'pop') navigate(-1);
+                  else navigate(back, { replace: true });
                 })
               }
             >

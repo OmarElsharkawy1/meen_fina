@@ -8,6 +8,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import './i18n';
 import './install/installPrompt';
 import { applyLang, detectLang, storedLang } from './lib/lang';
+import { startAutoUpdate } from './lib/autoUpdate';
 import { applyTheme, storedTheme } from './lib/theme';
 import { PushRefresh } from './push/PushRefresh';
 import './styles/tokens.css';
@@ -28,6 +29,7 @@ window.addEventListener('vite:preloadError', (e) => {
 
 applyLang(storedLang() ?? detectLang(navigator.languages));
 applyTheme(storedTheme());
+startAutoUpdate();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

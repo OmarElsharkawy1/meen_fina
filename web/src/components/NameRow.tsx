@@ -19,7 +19,8 @@ export function NameRow({ fallbackName }: { fallbackName: string }) {
   useEffect(() => setName(saved), [saved]);
 
   const trimmed = name.replace(/\s+/g, ' ').trim();
-  const canSave = !busy && trimmed.length > 0 && trimmed !== saved;
+  const dirty = trimmed.length > 0 && trimmed !== saved;
+  const canSave = !busy && dirty;
 
   async function save(e: FormEvent) {
     e.preventDefault();
@@ -42,6 +43,7 @@ export function NameRow({ fallbackName }: { fallbackName: string }) {
       <h2 id="your-name-title">{t('settings.yourName')}</h2>
       <input
         className="input"
+        enterKeyHint="done"
         aria-labelledby="your-name-title"
         dir="auto"
         autoComplete="nickname"
@@ -53,8 +55,9 @@ export function NameRow({ fallbackName }: { fallbackName: string }) {
         }}
       />
       <p className="muted">{t('settings.yourNameHint')}</p>
-      <button type="submit" className="btn btn-secondary" disabled={!canSave}>
-        {t('settings.saveName')}
+      {/* Coral as soon as there is something to save; a quiet outline otherwise. */}
+      <button type="submit" className={dirty ? 'btn btn-primary' : 'btn btn-secondary'} disabled={!canSave}>
+        {t(busy ? 'settings.savingName' : 'settings.saveName')}
       </button>
       {done ? (
         <p role="status" className="success">

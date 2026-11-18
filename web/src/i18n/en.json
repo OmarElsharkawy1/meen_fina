@@ -79,7 +79,8 @@
     "yourName": "Your name",
     "yourNameHint": "This is the name your friends see in every group.",
     "saveName": "Save name",
-    "nameSaved": "Name saved"
+    "nameSaved": "Name saved",
+    "savingName": "Saving…"
   },
   "home": {
     "empty": "No groups yet. Create one or join with a code.",
@@ -99,8 +100,6 @@
     "join": "Join group"
   },
   "group": {
-    "open": "Open",
-    "closed": "Closed",
     "ask": "+ Ask",
     "askNeedsMembers": "You need at least {{min}} members to ask a question.",
     "noQuestions": "No questions yet. Ask the first one!",
@@ -112,7 +111,10 @@
     "youVoted": "You voted",
     "notVotedYet": "You haven't voted yet",
     "changeVote": "Change vote",
-    "view": "View"
+    "view": "View",
+    "yourTurn": "Your turn",
+    "waiting": "Waiting on others",
+    "results": "Results"
   },
   "ask": {
     "label": "Who in the group...?",
