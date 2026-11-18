@@ -63,6 +63,7 @@ describe('pushForQuestionChange', () => {
     expect(sent[0]).toEqual({
       tokens: ['tok-c'],
       webpush: {
+        headers: { Urgency: 'high', TTL: '86400' },
         notification: { title: 'Dahab: new question', body: 'Who snores?', icon: '/icons/icon-192.png' },
         fcmOptions: { link: `${ORIGIN}/g/g1/q/q1` },
       },

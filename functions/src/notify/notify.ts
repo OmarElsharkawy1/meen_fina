@@ -6,6 +6,7 @@ import { notificationFor, type NotifyKind } from './messages';
 export type MulticastLike = {
   tokens: string[];
   webpush: {
+    headers: { Urgency: 'high'; TTL: string };
     notification: { title: string; body: string; icon: string };
     fcmOptions: { link: string };
   };
@@ -29,6 +30,13 @@ const DEAD_TOKEN_CODES = new Set([
   'messaging/registration-token-not-registered',
   'messaging/invalid-registration-token',
 ]);
+
+/**
+ * Web push delivery hints. Without Urgency: high, Android holds pushes back while the
+ * phone is idle or the screen is off, so they only show up once the app is opened.
+ * TTL drops a push that can't be delivered within a day instead of showing it late.
+ */
+const WEBPUSH_HEADERS = { Urgency: 'high', TTL: String(24 * 3600) } as const;
 
 /** Only the most recent tokens are used; keeps multicast well under FCM's 500 limit. */
 const MAX_TOKENS_PER_USER = 10;
@@ -80,6 +88,7 @@ export async function pushForQuestionChange(
         const result = await deps.send({
           tokens,
           webpush: {
+            headers: WEBPUSH_HEADERS,
             notification: { title, body, icon: '/icons/icon-192.png' },
             fcmOptions: { link },
           },
